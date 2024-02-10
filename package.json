@@ -1,5 +1,5 @@
 {
-	"name": "your-module-name",
+	"name": "generic-midi",
 	"version": "0.1.0",
 	"main": "dist/main.js",
 	"type": "module",
@@ -16,7 +16,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-your-module-name.git"
+		"url": "git+https://github.com/MeestorX/companion-module-generic-midi.git"
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.7.0"

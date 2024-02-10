@@ -1,16 +1,16 @@
 {
-	"id": "your-module-name",
-	"name": "your-module-name",
-	"shortname": "module-shortname",
-	"description": "A short one line description of your module",
+	"id": "generic-midi",
+	"name": "generic-midi",
+	"shortname": "generic-midi",
+	"description": "A generic MIDI module for companion",
 	"version": "0.0.0",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-your-module-name.git",
-	"bugs": "https://github.com/bitfocus/companion-module-your-module-name/issues",
+	"repository": "git+https://github.com/MeestorX/companion-module-generic-midi.git",
+	"bugs": "https://github.com/MeestorX/companion-module-generic-midi/issues",
 	"maintainers": [
 		{
-			"name": "Your name",
-			"email": "Your email"
+			"name": "Andrew Broughton",
+			"email": "andy@checkcheckonetwo.com"
 		}
 	],
 	"runtime": {
@@ -20,7 +20,7 @@
 		"entrypoint": "../main.js"
 	},
 	"legacyIds": [],
-	"manufacturer": "Your company",
-	"products": ["Your product"],
-	"keywords": []
+	"manufacturer": "generic",
+	"products": ["MIDI"],
+	"keywords": ["MIDI"]
 }
