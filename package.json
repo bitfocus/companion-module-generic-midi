@@ -1,0 +1,39 @@
+{
+	"name": "your-module-name",
+	"version": "0.1.0",
+	"main": "dist/main.js",
+	"type": "module",
+	"scripts": {
+		"postinstall": "husky",
+		"format": "prettier -w .",
+		"package": "yarn build && companion-module-build",
+		"build": "rimraf dist && yarn build:main",
+		"build:main": "tsc -p tsconfig.build.json",
+		"dev": "tsc -p tsconfig.build.json --watch",
+		"lint:raw": "eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern pkg",
+		"lint": "yarn lint:raw ."
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitfocus/companion-module-your-module-name.git"
+	},
+	"dependencies": {
+		"@companion-module/base": "~1.7.0"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^1.4.2",
+		"husky": "^9.0.10",
+		"lint-staged": "^15.2.2",
+		"typescript": "^5.3.3"
+	},
+	"prettier": "@companion-module/tools/.prettierrc.json",
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"prettier --write"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint:raw --fix"
+		]
+	}
+}
