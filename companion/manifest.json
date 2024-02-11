@@ -3,7 +3,7 @@
 	"name": "generic-midi",
 	"shortname": "generic-midi",
 	"description": "A generic MIDI module for companion",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/MeestorX/companion-module-generic-midi.git",
 	"bugs": "https://github.com/MeestorX/companion-module-generic-midi/issues",
@@ -17,7 +17,7 @@
 		"type": "node18",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
-		"entrypoint": "../main.js"
+		"entrypoint": "../dist/main.js"
 	},
 	"legacyIds": [],
 	"manufacturer": "generic",
