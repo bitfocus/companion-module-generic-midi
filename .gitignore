@@ -4,3 +4,5 @@ package-lock.json
 /pkg.tgz
 /dist
 DEBUG-*
+.DS_Store
+.vscode/
