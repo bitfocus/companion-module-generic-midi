@@ -139,7 +139,7 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@julusian/midi@^3.2.0":
+"@julusian/midi@^3.0.0-3", "@julusian/midi@^3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@julusian/midi/-/midi-3.2.0.tgz#e6012f466272cf35c833bf3b8122f4c4b9bd5a66"
   integrity sha512-BvyzzHYkbIz72y8Ay8Od2PgG1/QNOUk0yd57ra71PaNJbFhwlAWas57TIi2YTeeNolrQE72B3DkLRs5COcTWeg==
@@ -807,6 +807,13 @@ duplexer@~0.1.1:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
+
+easymidi@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/easymidi/-/easymidi-3.1.0.tgz#f662b0662e862d65a121ca9fbc49d7c85972c947"
+  integrity sha512-bxEwfPysM1L+SO/qwHaYu9dvTxw2QHFjGV9EMzqGQJbhEP2MupKpg6eJMkj+uoXN0Ep1JhVPLbNLPmt3UkZRTw==
+  dependencies:
+    "@julusian/midi" "^3.0.0-3"
 
 ejson@^2.2.3:
   version "2.2.3"
