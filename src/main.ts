@@ -4,12 +4,12 @@ import { UpdateVariableDefinitions } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
-import * as midi from 'easymidi'
+import * as easymidi from '../node-easymidi/index.js'
 
 export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	config!: ModuleConfig // Setup in init()
-	midiInput!: midi.Input
-	midiOutput!: midi.Output
+	midiInput!: easymidi.Input
+	midiOutput!: easymidi.Output
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -24,7 +24,6 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		this.updateFeedbacks() // export feedbacks
 		this.updateVariableDefinitions() // export variable definitions
 		await this.configUpdated(config)
-		this.start()
 	}
 	// When module gets deleted
 	async destroy(): Promise<void> {
@@ -34,14 +33,17 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
-		console.log('MIDI Inputs:', midi.getInputs())
-		console.log('MIDI Outputs:', midi.getOutputs())
+		console.log('Available MIDI Inputs:', easymidi.getInputs())
+		console.log('Available MIDI Outputs:', easymidi.getOutputs())
 		console.log('\n')
 		this.config = config
-		this.midiInput = new midi.Input(this.config.inPort)
-		this.midiOutput = new midi.Output(this.config.outPort)
-		console.log(`Selected In  Port : ${this.config.inPort}`)
-		console.log(`Selected Out Port : ${this.config.outPort}`)
+		if (this.midiInput) this.midiInput.close()
+		if (this.midiOutput) this.midiOutput.close()
+		this.midiInput = new easymidi.Input(this.config.inPort)
+		this.midiOutput = new easymidi.Output(this.config.outPort)
+		console.log(`Selected In  Port "${this.midiInput.name}" is ${this.midiInput.isPortOpen() ? '' : 'NOT '}Open.`)
+		console.log(`Selected Out Port "${this.midiOutput.name}" is ${this.midiOutput.isPortOpen() ? '' : 'NOT '}Open.`)
+		this.start()
 	}
 
 	// Return config fields for web config
@@ -64,8 +66,12 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	// The main loop
 	start(): void {
 		console.log('Entering *main*')
-		this.midiInput.on('message', (msg) => {
+		this.midiInput.on('smpte', (msg) => {
 			console.log(msg)
+			this.setVariableValues({
+				smpte: msg.smpte,
+				frameRate: msg.frameRate,
+			})
 		})
 	}
 }
