@@ -6,13 +6,13 @@ export function UpdateActions(self: ModuleInstance): void {
 	const midiMsgTypes: DropdownChoice[] = [
 		{ id: 'noteoff', label: 'Note Off' },
 		{ id: 'noteon', label: 'Note On' },
-		//		{ id: 'poly aftertouch', 	label: 'Aftertouch' },
+		//		{ id: 'aftertouch', 	label: 'Aftertouch' },
 		{ id: 'cc', label: 'CC' },
 		{ id: 'program', label: 'Program Change' },
-		//		{ id: 'channel aftertouch', label: 'Channel Pressure' },
+		//		{ id: 'channelpressure', label: 'Channel Pressure' },
 		{ id: 'pitch', label: 'Pitch Wheel' },
 		{ id: 'sysex', label: 'SysEx' },
-		{ id: 'mtc', label: 'MIDI Time Code' },
+		//		{ id: 'mtc', label: 'MIDI Time Code' },
 		//		{ id: 'position',			label: 'Song Position Pointer' },
 		//		{ id: 'select',				label: 'Song Select' },
 		//		{ id: 'tune',				label: 'Tune Request' },
@@ -44,10 +44,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: 0,
 					min: 0,
 					max: 15,
-					isVisible: (opts) =>
-						['noteoff', 'noteon', 'cc', 'poly aftertouch', 'program', 'channel aftertouch', 'pitch'].includes(
-							String(opts.msgType)
-						),
+					isVisible: (opts) => ['noteoff', 'noteon', 'cc', 'program', 'pitch'].includes(String(opts.msgType)),
 				},
 				{
 					id: 'note',
@@ -56,61 +53,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: 60,
 					min: 0,
 					max: 127,
-					isVisible: (opts) => ['noteoff', 'noteon', 'poly aftertouch'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'pressure',
-					type: 'number',
-					label: 'Pressure',
-					default: 127,
-					min: 0,
-					max: 127,
-					isVisible: (opts) => ['poly aftertouch', 'channel aftertouch'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'controller',
-					type: 'number',
-					label: 'Controller',
-					default: 127,
-					min: 0,
-					max: 127,
-					isVisible: (opts) => ['cc'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'type',
-					type: 'number',
-					label: 'Type',
-					default: 127,
-					min: 0,
-					max: 127,
-					isVisible: (opts) => ['mtc'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'value',
-					type: 'number',
-					label: 'Value',
-					default: 8192,
-					min: 0,
-					max: 16386,
-					isVisible: (opts) => ['cc', 'pitch', 'position', 'mtc'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'song',
-					type: 'number',
-					label: 'Song Number',
-					default: 127,
-					min: 0,
-					max: 127,
-					isVisible: (opts) => ['select'].includes(String(opts.msgType)),
-				},
-				{
-					id: 'program',
-					type: 'number',
-					label: 'Program Number',
-					default: 127,
-					min: 0,
-					max: 127,
-					isVisible: (opts) => ['program'].includes(String(opts.msgType)),
+					isVisible: (opts) => ['noteoff', 'noteon'].includes(String(opts.msgType)),
 				},
 				{
 					id: 'velocity',
@@ -122,6 +65,43 @@ export function UpdateActions(self: ModuleInstance): void {
 					isVisible: (opts) => ['noteoff', 'noteon'].includes(String(opts.msgType)),
 				},
 				{
+					id: 'controller',
+					type: 'number',
+					label: 'Controller',
+					default: 127,
+					min: 0,
+					max: 127,
+					isVisible: (opts) => opts.msgType == 'cc',
+				},
+				{
+					id: 'value',
+					type: 'number',
+					label: 'Value',
+					default: 0,
+					min: 0,
+					max: 127,
+					isVisible: (opts) => opts.msgType == 'cc',
+				},
+				{
+					id: 'pitch',
+					type: 'number',
+					label: 'Value',
+					default: 8192,
+					min: 0,
+					max: 16386,
+					isVisible: (opts) => opts.msgType == 'pitch',
+				},
+				{
+					id: 'number',
+					type: 'number',
+					label: 'Program Number',
+					default: 127,
+					min: 0,
+					max: 127,
+					isVisible: (opts) => opts.msgType == 'program',
+				},
+
+				{
 					id: 'message',
 					type: 'textinput',
 					label: 'Message',
@@ -132,19 +112,18 @@ export function UpdateActions(self: ModuleInstance): void {
 			],
 
 			callback: async (event, context) => {
-				let bytes: number[] = []
 				let midiStr: string
 				switch (String(event.options.msgType)) {
 					case 'sysex':
 						midiStr = await context.parseVariablesInString(String(event.options.message))
-						bytes = midiStr.split(/[ ,]+/).map((n) => {
+						event.options.bytes = midiStr.split(/[ ,]+/).map((n) => {
 							return parseInt(n)
 						})
 						break
-					default:
-						bytes = easymidi.parseMessage(event.options.msgType, event.options)
+					case 'pitch':
+						event.options.value = event.options.pitch
 				}
-				self.midiOutput.send('message', { bytes: bytes })
+				self.midiOutput.send('message', { bytes: easymidi.parseMessage(event.options.msgType, event.options) })
 			},
 		},
 	})

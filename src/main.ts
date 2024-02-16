@@ -67,11 +67,13 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	start(): void {
 		console.log('Entering *main*')
 		this.midiInput.on('smpte', (msg) => {
-			console.log(msg)
 			this.setVariableValues({
 				smpte: msg.smpte,
 				frameRate: msg.frameRate,
 			})
+		})
+		this.midiInput.on('message', (msg) => {
+			console.log(msg)
 		})
 	}
 }
