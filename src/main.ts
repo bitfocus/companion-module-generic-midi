@@ -6,10 +6,17 @@ import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
 import * as easymidi from '../node-easymidi/index.js'
 
+export interface DataStoreEntry {
+	key: number
+	val: number
+}
+
 export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	config!: ModuleConfig // Setup in init()
 	midiInput!: easymidi.Input
 	midiOutput!: easymidi.Output
+	dataStore!: Map<number, number>
+	isRecordingActions!: boolean
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -17,19 +24,19 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	async init(config: ModuleConfig): Promise<void> {
 		this.config = config
-
-		this.updateStatus(InstanceStatus.Ok)
+		this.dataStore = new Map()
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
 		this.updateVariableDefinitions() // export variable definitions
 		await this.configUpdated(config)
 	}
+
 	// When module gets deleted
 	async destroy(): Promise<void> {
 		this.midiInput.close()
 		this.midiOutput.close()
-		this.log('debug', 'destroyed')
+		this.log('debug', `${this.id} destroyed`)
 	}
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
@@ -41,8 +48,18 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		if (this.midiOutput) this.midiOutput.close()
 		this.midiInput = new easymidi.Input(this.config.inPort)
 		this.midiOutput = new easymidi.Output(this.config.outPort)
-		console.log(`Selected In  Port "${this.midiInput.name}" is ${this.midiInput.isPortOpen() ? '' : 'NOT '}Open.`)
-		console.log(`Selected Out Port "${this.midiOutput.name}" is ${this.midiOutput.isPortOpen() ? '' : 'NOT '}Open.`)
+		let midiInStatus = this.midiInput.isPortOpen()
+		let midiOutStatus = this.midiOutput.isPortOpen()
+		this.log('info', `Selected In  Port "${this.midiInput.name}" is ${midiInStatus ? '' : 'NOT '}Open.`)
+		this.log('info', `Selected Out Port "${this.midiOutput.name}" is ${midiOutStatus ? '' : 'NOT '}Open.`)
+		if (midiInStatus && midiOutStatus) {
+			this.updateStatus(InstanceStatus.Ok)
+		} else {
+			if (!midiInStatus && midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI In Port not open')
+			else if (midiInStatus && !midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI Out Port not open')
+			else this.updateStatus(InstanceStatus.Disconnected)
+		}
+
 		this.start()
 	}
 
@@ -65,16 +82,81 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	// The main loop
 	start(): void {
-		console.log('Entering *main*')
-		this.midiInput.on('smpte', (msg) => {
+		console.log('\nEntering *main*\n')
+
+		let midiInTimer: NodeJS.Timeout
+		this.setVariableValues({midiData: false})
+
+		this.midiInput.on('smpte', (args) => {
 			this.setVariableValues({
-				smpte: msg.smpte,
-				frameRate: msg.frameRate,
+				smpte: args.smpte,
+				smpteFR: args.frameRate,
 			})
 		})
-		this.midiInput.on('message', (msg) => {
-			console.log(msg)
+		this.midiInput.on('message', (args) => {
+			clearTimeout(midiInTimer)
+			midiInTimer = setTimeout(() => {
+				this.setVariableValues({midiInData: false})		
+			}, 200)			
+			this.setVariableValues({midiInData: true})
+			if (args._type !== 'mtc') {
+				var msgAsBytes: number[] = easymidi.parseMessage(String(args._type), args)
+				var message = easymidi.parseBytes(msgAsBytes)
+				this.log('debug', `Received: ${JSON.stringify(message)} from ${this.midiInput.name}`)
+				this.addToDataStore(msgAsBytes)
+				if (this.isRecordingActions) this.addToActionRecording(message)
+			}
 		})
+	}
+
+	addToDataStore(bytes: number[]): void {
+		var data: DataStoreEntry= this.getDataFromBytes(bytes)
+		if (data.key > 0) {
+			this.dataStore.set(data.key, data.val)
+console.log('addToDataStore: dataStore = ', this.dataStore)
+			this.checkFeedbacks()
+		}
+	}
+
+	getFromDataStore(bytes: number[]): number | undefined {
+		var data: DataStoreEntry = this.getDataFromBytes(bytes)
+		if (data.key > 0) {
+			return this.dataStore.get(data.key)
+		}
+		return undefined
+	}
+
+	getDataFromBytes(bytes: number[]): DataStoreEntry {
+		var lastIndex: number = bytes.length - 1
+		var parsedKey: number = 0
+		var parsedVal: number = 0
+		if (lastIndex >= 0 && bytes[0] < 0xF0) {
+			parsedVal = bytes[lastIndex]
+			for (let i = 0; i < lastIndex; i++) {
+				  parsedKey += bytes[i] << ((lastIndex - i - 1) << 3)
+			}
+			if (parsedKey == 0) parsedKey = parsedVal
+		}
+		return { key: parsedKey, val: parsedVal }
+	}
+
+	// Track whether actions are being recorded
+	handleStartStopRecordActions(isRecording: boolean): void {
+		this.isRecordingActions = isRecording
+	}
+
+	// Add a command to the Action Recorder
+	addToActionRecording(c: any): void {
+		if (c.args.channel !== undefined) c.args.channel++
+		if (c.args.number !== undefined) c.args.number++
+		c.args = { ...c.args, useVariables: false }
+		this.recordAction(
+			{
+				actionId: c.type,
+				options:  c.args,
+			},
+			`${c.type} ${c.args}` // uniqueId to stop duplicates
+		)
 	}
 }
 
