@@ -4,7 +4,7 @@ import { UpdateVariableDefinitions } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
-import * as easymidi from '../node-easymidi/index.js'
+import * as midi from './midi/index.js'
 
 export interface DataStoreEntry {
 	key: number
@@ -13,8 +13,8 @@ export interface DataStoreEntry {
 
 export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	config!: ModuleConfig // Setup in init()
-	midiInput!: easymidi.Input
-	midiOutput!: easymidi.Output
+	midiInput!: midi.Input
+	midiOutput!: midi.Output
 	dataStore!: Map<number, number>
 	isRecordingActions!: boolean
 
@@ -40,16 +40,16 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
-		console.log('Available MIDI Inputs:', easymidi.getInputs())
-		console.log('Available MIDI Outputs:', easymidi.getOutputs())
+		console.log('Available MIDI Inputs:', midi.getInputs())
+		console.log('Available MIDI Outputs:', midi.getOutputs())
 		console.log('\n')
 		this.config = config
 		if (this.midiInput) this.midiInput.close()
 		if (this.midiOutput) this.midiOutput.close()
-		this.midiInput = new easymidi.Input(this.config.inPort)
-		this.midiOutput = new easymidi.Output(this.config.outPort)
-		let midiInStatus = this.midiInput.isPortOpen()
-		let midiOutStatus = this.midiOutput.isPortOpen()
+		this.midiInput = new midi.Input(this.config.inPort)
+		this.midiOutput = new midi.Output(this.config.outPort)
+		const midiInStatus = this.midiInput.isPortOpen()
+		const midiOutStatus = this.midiOutput.isPortOpen()
 		this.log('info', `Selected In  Port "${this.midiInput.name}" is ${midiInStatus ? '' : 'NOT '}Open.`)
 		this.log('info', `Selected Out Port "${this.midiOutput.name}" is ${midiOutStatus ? '' : 'NOT '}Open.`)
 		if (midiInStatus && midiOutStatus) {
@@ -85,23 +85,23 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		console.log('\nEntering *main*\n')
 
 		let midiInTimer: NodeJS.Timeout
-		this.setVariableValues({midiData: false})
+		this.setVariableValues({ midiData: false })
 
-		this.midiInput.on('smpte', (args) => {
+		this.midiInput.on('smpte', (args: { smpte: string; smpteFR: number }) => {
 			this.setVariableValues({
 				smpte: args.smpte,
-				smpteFR: args.frameRate,
+				smpteFR: args.smpteFR,
 			})
 		})
-		this.midiInput.on('message', (args) => {
+		this.midiInput.on('message', (args: midi.MsgArgs) => {
 			clearTimeout(midiInTimer)
 			midiInTimer = setTimeout(() => {
-				this.setVariableValues({midiInData: false})		
-			}, 200)			
-			this.setVariableValues({midiInData: true})
+				this.setVariableValues({ midiInData: false })
+			}, 200)
+			this.setVariableValues({ midiInData: true })
 			if (args._type !== 'mtc') {
-				var msgAsBytes: number[] = easymidi.parseMessage(String(args._type), args)
-				var message = easymidi.parseBytes(msgAsBytes)
+				const msgAsBytes: number[] = midi.parseMessage(String(args._type), args)!
+				const message = midi.parseBytes(msgAsBytes)
 				this.log('debug', `Received: ${JSON.stringify(message)} from ${this.midiInput.name}`)
 				this.addToDataStore(msgAsBytes)
 				if (this.isRecordingActions) this.addToActionRecording(message)
@@ -110,16 +110,16 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	addToDataStore(bytes: number[]): void {
-		var data: DataStoreEntry= this.getDataFromBytes(bytes)
+		const data: DataStoreEntry = this.getDataFromBytes(bytes)
 		if (data.key > 0) {
 			this.dataStore.set(data.key, data.val)
-console.log('addToDataStore: dataStore = ', this.dataStore)
+			//			console.log('addToDataStore: dataStore = ', this.dataStore)
 			this.checkFeedbacks()
 		}
 	}
 
 	getFromDataStore(bytes: number[]): number | undefined {
-		var data: DataStoreEntry = this.getDataFromBytes(bytes)
+		const data: DataStoreEntry = this.getDataFromBytes(bytes)
 		if (data.key > 0) {
 			return this.dataStore.get(data.key)
 		}
@@ -127,13 +127,13 @@ console.log('addToDataStore: dataStore = ', this.dataStore)
 	}
 
 	getDataFromBytes(bytes: number[]): DataStoreEntry {
-		var lastIndex: number = bytes.length - 1
-		var parsedKey: number = 0
-		var parsedVal: number = 0
-		if (lastIndex >= 0 && bytes[0] < 0xF0) {
+		const lastIndex: number = bytes.length - 1
+		let parsedKey = 0
+		let parsedVal = 0
+		if (lastIndex >= 0 && bytes[0] < 0xf0) {
 			parsedVal = bytes[lastIndex]
 			for (let i = 0; i < lastIndex; i++) {
-				  parsedKey += bytes[i] << ((lastIndex - i - 1) << 3)
+				parsedKey += bytes[i] << ((lastIndex - i - 1) << 3)
 			}
 			if (parsedKey == 0) parsedKey = parsedVal
 		}
@@ -146,14 +146,14 @@ console.log('addToDataStore: dataStore = ', this.dataStore)
 	}
 
 	// Add a command to the Action Recorder
-	addToActionRecording(c: any): void {
-		if (c.args.channel !== undefined) c.args.channel++
-		if (c.args.number !== undefined) c.args.number++
-		c.args = { ...c.args, useVariables: false }
+	addToActionRecording(c: { type: string | undefined; args: midi.MsgArgs }): void {
+		const args = { ...c.args, useVariables: false }
+		if (args.channel !== undefined) args.channel++
+		if (args.number !== undefined) args.number++
 		this.recordAction(
 			{
-				actionId: c.type,
-				options:  c.args,
+				actionId: c.type!,
+				options: args,
 			},
 			`${c.type} ${c.args}` // uniqueId to stop duplicates
 		)

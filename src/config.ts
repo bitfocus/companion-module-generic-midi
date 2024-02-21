@@ -1,5 +1,5 @@
 import { type SomeCompanionConfigField, DropdownChoice } from '@companion-module/base'
-import * as easymidi from '../node-easymidi/index.js'
+import { getInputs, getOutputs } from './midi/index.js'
 
 export interface ModuleConfig {
 	inPort: string
@@ -9,8 +9,8 @@ export interface ModuleConfig {
 export function GetConfigFields(): SomeCompanionConfigField[] {
 	const inPortNames: DropdownChoice[] = []
 	const outPortNames: DropdownChoice[] = []
-	const inPorts: string[] = easymidi.getInputs()
-	const outPorts: string[] = easymidi.getOutputs()
+	const inPorts: string[] = getInputs()
+	const outPorts: string[] = getOutputs()
 	inPorts.forEach((m) => {
 		inPortNames.push({ id: m, label: m })
 	})
