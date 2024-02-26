@@ -1,6 +1,7 @@
 import type { ModuleInstance } from './main.js'
 import { CompanionActionDefinition, CompanionActionDefinitions } from '@companion-module/base'
-import * as midi from './midi/index.js'
+import { HandleMidiIndicators } from './variables.js'
+import { MidiMessage } from './midi/msgtypes.js'
 
 export function UpdateActions(self: ModuleInstance): void {
 	interface ActionDef {
@@ -14,7 +15,7 @@ export function UpdateActions(self: ModuleInstance): void {
 	const midiMsgTypes: ActionDef[] = [
 		{ id: 'noteoff', name: 'Note Off', valId: 'velocity', valLabel: 'Velocity', valMin: 0, valMax: 127 },
 		{ id: 'noteon', name: 'Note On', valId: 'velocity', valLabel: 'Velocity', valMin: 0, valMax: 127 },
-		//		{ id: 'aftertouch', 		name: 'Aftertouch' },
+		//		{ id: 'aftertouch', name: 'Aftertouch' },
 		{ id: 'cc', name: 'CC', valId: 'value', valLabel: 'Value', valMin: 0, valMax: 127 },
 		{ id: 'program', name: 'Program Change', valId: 'number', valLabel: 'Program Number', valMin: 1, valMax: 128 },
 		//		{ id: 'channelpressure', 	name: 'Channel Pressure' },
@@ -33,7 +34,6 @@ export function UpdateActions(self: ModuleInstance): void {
 		//		{ id: 'reset',				name: 'Reset' },
 	]
 
-	let midiOutTimer: NodeJS.Timeout
 	self.setVariableValues({ midiOutData: false })
 
 	const actions: CompanionActionDefinitions = {}
@@ -43,43 +43,38 @@ export function UpdateActions(self: ModuleInstance): void {
 			options: [],
 			callback: async (event, context) => {
 				if (!self.midiOutput.isPortOpen()) {
-					self.log('error', `Output Port ${self.midiOutput.name} not open!`)
+					self.log('error', `Output Port "${self.midiOutput.name}" not open!`)
 					return
 				}
 				const opts = JSON.parse(JSON.stringify(event.options))
 
 				if (action.id == 'sysex') {
-					opts.bytes = opts[action.valId].split(/[ ,]+/).map((n: string): number => {
-						return parseInt(n)
-					})
+					opts.bytes = opts[action.valId].split(/[ ,]+/).map((n: string): number => parseInt(n))
 				}
 				if (opts.useVariables || opts.relValue) {
 					opts[action.valId] = await context.parseVariablesInString(opts.varValue)
 				}
 				opts.channel--
-				let data: number[] = midi.parseMessage(action.id, opts)!
+
+				let msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
 				if (opts.relValue) {
-					const val = self.getFromDataStore(data)
+					const val = self.getFromDataStore(msg!)
 					if (val === undefined) {
-						self.log('info', 'Relative value not sent. Current value from device is missing!')
+						self.log('info', 'Relative value not sent. Current value from device is needed!')
 						return
 					}
 					opts[action.valId] = val + Number(opts[action.valId] * 1)
 				} else {
 					opts.number--
 				}
-				data = midi.parseMessage(action.id, opts)!
-				self.log('debug', `Sending:  ${JSON.stringify(midi.parseBytes(data))} to ${self.midiOutput.name}`)
 
-				self.midiOutput.send('message', { bytes: data })
-
-				clearTimeout(midiOutTimer)
-				midiOutTimer = setTimeout(() => {
-					self.setVariableValues({ midiOutData: false })
-				}, 200)
-				self.setVariableValues({ midiOutData: true })
+				msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
+				self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
+				self.midiOutput.send(msg!)
+				HandleMidiIndicators(self, 'midiOutData')
 			},
 		}
+
 		if (['noteoff', 'noteon', 'cc', 'program', 'pitch'].includes(action.id)) {
 			newAction.options.push({
 				id: 'channel',
@@ -134,6 +129,13 @@ export function UpdateActions(self: ModuleInstance): void {
 					type: 'checkbox',
 					label: 'Use Variables',
 					default: false,
+				},
+				{
+					id: 'relText',
+					type: 'static-text',
+					label: '*NOTE* Relative will only work after a value has been sent from the device!',
+					value: 'value',
+					isVisible: (opts) => !!opts.relValue,
 				},
 				{
 					id: 'relValue',

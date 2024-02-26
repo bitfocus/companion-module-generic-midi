@@ -1,7 +1,7 @@
 import { combineRgb } from '@companion-module/base'
 import type { ModuleInstance } from './main.js'
 import { DropdownChoice } from '@companion-module/base'
-import * as midi from './midi/index.js'
+import { MidiMessage } from './midi/msgtypes.js'
 
 export function UpdateFeedbacks(self: ModuleInstance): void {
 	const midiMsgTypes: DropdownChoice[] = [
@@ -157,14 +157,37 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 							return parseInt(n)
 						})
 				}
-				const data: number[] = midi.parseMessage(String(opts.msgType), opts)!
-				if (
-					self.getFromDataStore(data) !== undefined &&
-					self.getFromDataStore(data) == self.getDataFromBytes(data).val
-				) {
+				const msg = MidiMessage.parseMessage(undefined, { id: String(opts.msgType), ...opts })
+				if (self.getFromDataStore(msg!) !== undefined && self.getFromDataStore(msg!) == self.getDataEntry(msg!).val) {
 					return true
 				}
 				return false
+			},
+		},
+
+		midiInData: {
+			name: 'MIDI Data Incoming?',
+			type: 'boolean',
+			defaultStyle: {
+				bgcolor: combineRgb(255, 0, 0),
+				color: combineRgb(0, 0, 0),
+			},
+			options: [],
+			callback: async (): Promise<boolean> => {
+				return !!self.getVariableValue('midiInData')
+			},
+		},
+
+		midiOutData: {
+			name: 'MIDI Data Outgoing?',
+			type: 'boolean',
+			defaultStyle: {
+				bgcolor: combineRgb(255, 0, 0),
+				color: combineRgb(0, 0, 0),
+			},
+			options: [],
+			callback: async (): Promise<boolean> => {
+				return !!self.getVariableValue('midiOutData')
 			},
 		},
 	})
