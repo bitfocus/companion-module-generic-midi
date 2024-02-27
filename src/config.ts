@@ -1,5 +1,5 @@
 import { type SomeCompanionConfigField, DropdownChoice } from '@companion-module/base'
-import { getInputs, getOutputs } from './midi/index.js'
+import { getInputs, getOutputs } from './midi/midi.js'
 
 export interface ModuleConfig {
 	inPort: string

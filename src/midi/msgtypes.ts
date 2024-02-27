@@ -250,7 +250,7 @@ class ControlChange extends MidiMessage {
 	}
 
 	get args(): IMsgArgs {
-		return { channel: this.channel, note: this.controller, pressure: this.value }
+		return { channel: this.channel, controller: this.controller, value: this.value }
 	}
 
 	toString(): string {

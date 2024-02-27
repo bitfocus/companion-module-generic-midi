@@ -5,7 +5,7 @@ import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
 import { UpdatePresets } from './presets.js'
-import * as midi from './midi/index.js'
+import * as midi from './midi/midi.js'
 import { MidiMessage } from './midi/msgtypes.js'
 
 export interface DataStoreEntry {
@@ -107,7 +107,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	addToDataStore(msg: MidiMessage): void {
-		const data: DataStoreEntry = this.getDataEntry(msg)
+		const data: DataStoreEntry = this.getValFromMsg(msg)
 		if (data.key > 0) {
 			this.dataStore.set(data.key, data.val)
 			this.checkFeedbacks()
@@ -115,14 +115,14 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	getFromDataStore(msg: MidiMessage): number | undefined {
-		const data: DataStoreEntry = this.getDataEntry(msg)
+		const data: DataStoreEntry = this.getValFromMsg(msg)
 		if (data.key > 0) {
 			return this.dataStore.get(data.key)
 		}
 		return undefined
 	}
 
-	getDataEntry(msg: MidiMessage): DataStoreEntry {
+	getValFromMsg(msg: MidiMessage): DataStoreEntry {
 		const lastIndex: number = msg.bytes.length - 1
 		let parsedKey = 0
 		let parsedVal = 0

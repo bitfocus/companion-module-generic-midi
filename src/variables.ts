@@ -1,14 +1,17 @@
+import { CompanionVariableDefinition } from '@companion-module/base'
 import type { ModuleInstance } from './main.js'
+import { MidiMessage } from './midi/msgtypes.js'
 
+const variables: CompanionVariableDefinition[] = [
+	{ variableId: 'midiInData', name: 'MIDI Data Incoming' },
+	{ variableId: 'midiOutData', name: 'MIDI Data Outgoing' },
+	{ variableId: 'smpte', name: 'SMPTE TC from MTC' },
+	{ variableId: 'smpteFR', name: 'SMPTE Frame Rate from MTC' },
+]
 const midiTimers: Map<string, NodeJS.Timeout | null> = new Map()
 
 export function UpdateVariableDefinitions(self: ModuleInstance): void {
-	self.setVariableDefinitions([
-		{ variableId: 'midiInData', name: 'MIDI Data Incoming' },
-		{ variableId: 'midiOutData', name: 'MIDI Data Outgoing' },
-		{ variableId: 'smpte', name: 'SMPTE TC from MTC' },
-		{ variableId: 'smpteFR', name: 'SMPTE Frame Rate from MTC' },
-	])
+	self.setVariableDefinitions(variables)
 }
 
 export function HandleMidiIndicators(self: ModuleInstance, variable: string): void {
@@ -21,4 +24,27 @@ export function HandleMidiIndicators(self: ModuleInstance, variable: string): vo
 	midiTimers.set(variable, t)
 	self.setVariableValues({ [variable]: true })
 	self.checkFeedbacks(variable)
+}
+
+export function FBCreatesVar(self: ModuleInstance, msg: MidiMessage, data: number | undefined): void {
+	// Auto-create a variable
+
+	const cmdName = msg.id
+	let varName = `V_${cmdName}`
+	const keys = Object.keys(msg.args)
+	for (let i = 0; i < keys.length - 1; i++) {
+		const key = keys[i] as keyof typeof msg.args
+		let val: number | undefined = Number(msg.args[key])
+		if (val !== undefined) {
+			if (key == 'channel') val++
+			varName += `_${keys[i]}_${val}`
+		}
+	}
+
+	// Add new Auto-created variable and value
+	const varToAdd = { variableId: varName, name: varName }
+	const curVarVal = self.getVariableValue(varName)
+	if (curVarVal === undefined) variables.push(varToAdd)
+	self.setVariableDefinitions(variables)
+	self.setVariableValues({ [varName]: data })
 }

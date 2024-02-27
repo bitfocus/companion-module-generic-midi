@@ -1,5 +1,6 @@
 import { combineRgb } from '@companion-module/base'
 import type { ModuleInstance } from './main.js'
+import { FBCreatesVar } from './variables.js'
 import { DropdownChoice } from '@companion-module/base'
 import { MidiMessage } from './midi/msgtypes.js'
 
@@ -120,7 +121,7 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 					label: 'Value',
 					default: '',
 					useVariables: true,
-					isVisible: (opts) => opts.msgType !== 'sysex' && !!opts.useVariables,
+					isVisible: (opts) => opts.msgType !== 'sysex' && !!opts.useVariables && !opts.createVar,
 				},
 				{
 					id: 'useVariables',
@@ -128,6 +129,13 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 					label: 'Use Variables',
 					default: false,
 					isVisible: (opts) => opts.msgType !== 'sysex',
+				},
+				{
+					id: 'createVar',
+					type: 'checkbox',
+					label: 'Auto-Create Variable',
+					default: false,
+					isVisible: (opts) => opts.msgType !== 'sysex' && !!opts.useVariables,
 				},
 			],
 
@@ -158,7 +166,11 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 						})
 				}
 				const msg = MidiMessage.parseMessage(undefined, { id: String(opts.msgType), ...opts })
-				if (self.getFromDataStore(msg!) !== undefined && self.getFromDataStore(msg!) == self.getDataEntry(msg!).val) {
+				const dataStoreVal = self.getFromDataStore(msg!)
+				if (opts.msgType !== 'sysex' && opts.useVariables && opts.createVar && msg !== undefined)
+					FBCreatesVar(self, msg, dataStoreVal)
+				if (dataStoreVal == undefined) return false
+				if (dataStoreVal == self.getValFromMsg(msg!).val) {
 					return true
 				}
 				return false
