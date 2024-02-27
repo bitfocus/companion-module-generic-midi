@@ -9,6 +9,8 @@
 			"*": ["./node_modules/*"]
 		},
 		"module": "Node16",
-		"moduleResolution": "Node16"
+		"moduleResolution": "Node16",
+		"noUnusedLocals": false,
+		"noUnusedParameters": false
 	}
 }

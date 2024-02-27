@@ -6,4 +6,4 @@ package-lock.json
 DEBUG-*
 .DS_Store
 .vscode/
-src/midi/msgtypes.ts
+companion-module-generic-midi.code-workspace

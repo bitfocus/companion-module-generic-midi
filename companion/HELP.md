@@ -1,4 +1,6 @@
-## Your module
+## companion-module-generiic-midi
+
+v1.0.0
 
 A generic MIDI module for Companion
 
