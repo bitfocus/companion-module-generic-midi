@@ -42,7 +42,7 @@ export function FBCreatesVar(self: ModuleInstance, msg: MidiMessage, data: numbe
 	}
 
 	// Add new Auto-created variable and value
-	const varToAdd = { variableId: varName, name: varName }
+	const varToAdd = { variableId: varName, name: 'Auto-Created Variable' }
 	const curVarVal = self.getVariableValue(varName)
 	if (curVarVal === undefined) variables.push(varToAdd)
 	self.setVariableDefinitions(variables)
