@@ -105,7 +105,6 @@ export class MidiMessage {
 	}
 
 	static parseMessage(bytes: number[] = [], msg: IMsgArgs = this.noMsg): MidiMessage | undefined {
-		console.log('\nparseMessage: bytes = ', bytes, ', msg = ', msg)
 		let incoming = new MidiMessage(bytes)
 		let status = bytes.length > 0 ? incoming.status : msg.status || 0
 		if (status === 0 && typeof msg.id !== undefined) status = MIDI_STATUS_TYPES.get(msg.id!) || 0
