@@ -1,0 +1,61 @@
+dev "IAC Driver Bus 1"
+# Set to CH 1
+ch 1
+
+# Note On/Off
+on 0 0
+off 0 0
+on 0 127
+off 0 127
+on 127 0
+off 127 0
+on 127 127
+off 127 127
+
+# CC
+cc 0 0
+cc 0 127
+cc 127 0
+cc 127 127
+
+# Pitch Bend
+pb 0
+pb 16383
+
+# Program Change
+pc 0
+pc 127
+
+# Set to CH 16
+ch 16
+# Note On/Off
+on 0 0
+off 0 0
+on 0 127
+off 0 127
+on 127 0
+off 127 0
+on 127 127
+off 127 127
+
+
+
+# CC
+cc 0 0
+cc 0 127
+cc 127 0
+cc 127 127
+
+# Pitch Bend
+pb 0
+pb 16383
+
+# Program Change
+pc 0
+pc 1
+pc 127
+pc 128
+
+
+# SysEx
+syx 1 2 3 4
