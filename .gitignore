@@ -1,0 +1,11 @@
+node_modules/
+package-lock.json
+/pkg
+/pkg.tgz
+/dist
+DEBUG-*
+.DS_Store
+.vscode/
+companion-module-generic-midi.code-workspace
+.eslintrc.cjs
+.husky
