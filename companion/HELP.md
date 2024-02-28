@@ -21,6 +21,7 @@ Supports the following Incoming and Outgoing MIDI message types:
 
 ## To Do:
 
+- Virtual ports
 - Long Sysex support
 - Filtering of Real-Time messages
 
