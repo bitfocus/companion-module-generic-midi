@@ -9,3 +9,4 @@ DEBUG-*
 companion-module-generic-midi.code-workspace
 .eslintrc.cjs
 .husky
+src/midi/sendmidi.txt
