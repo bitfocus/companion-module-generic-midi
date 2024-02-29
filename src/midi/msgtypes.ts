@@ -38,7 +38,6 @@ export interface IMsgArgs {
 	value?: number
 	number?: number
 	song?: number
-	_type?: string
 }
 
 export class MidiMessage {
@@ -56,7 +55,6 @@ export class MidiMessage {
 		value: 0,
 		number: 0,
 		song: 0,
-		_type: '',
 	}
 
 	constructor(bytes: number[] = []) {
@@ -353,7 +351,7 @@ class Sysex extends MidiMessage {
 	}
 }
 
-class Mtc extends MidiMessage {
+export class Mtc extends MidiMessage {
 	constructor(t: number, v: number) {
 		super()
 		this.id = 'mtc'
@@ -362,14 +360,14 @@ class Mtc extends MidiMessage {
 		this.value = v
 	}
 
-	get type() {
+	get type(): number {
 		return (this.data1 >> 4) & 0x07
 	}
 	set type(v: number) {
 		this.data1 = (this.data1 & 0x0f) | (v << 4)
 	}
 
-	get value() {
+	get value(): number {
 		return this.data1 & 0x0f
 	}
 	set value(v: number) {

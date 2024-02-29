@@ -1,6 +1,6 @@
 import * as node_midi from '@julusian/midi'
 import { EventEmitter } from 'events'
-import { MidiMessage } from './msgtypes.js'
+import { MidiMessage, Mtc } from './msgtypes.js'
 
 export class Input extends EventEmitter {
 	private _input
@@ -35,9 +35,9 @@ export class Input extends EventEmitter {
 			// a long sysex can be sent in multiple chunks, depending on the RtMidi buffer size
 
 			const msg = MidiMessage.parseMessage(bytes)
-			this.emit('message', msg)
+			this.emit('message', deltaTime, msg)
 			if (msg!.id == 'mtc') {
-				this.parseMtc(msg!)
+				this.parseMtc(msg as Mtc)
 			}
 		})
 	}
@@ -51,10 +51,10 @@ export class Input extends EventEmitter {
 		return this._input.isPortOpen()
 	}
 
-	parseMtc(data: MidiMessage): void {
+	parseMtc(data: Mtc): void {
 		const FRAME_RATES = [24, 25, 29.97, 30]
-		const byteNumber: number = data.args.type!
-		let value: number = data.args.value!
+		const byteNumber: number = data.type
+		let value: number = data.value
 		let smpteFrameRate: number
 
 		this._smpte[byteNumber] = value

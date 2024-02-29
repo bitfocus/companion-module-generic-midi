@@ -2,8 +2,12 @@ import { type SomeCompanionConfigField, DropdownChoice } from '@companion-module
 import { getInputs, getOutputs } from './midi/midi.js'
 
 export interface ModuleConfig {
-	inPort: string
-	outPort: string
+	inPortName: string
+	inPortVirtualName: string
+	inPortIsVirtual: boolean
+	outPortName: string
+	outPortVirtualName: string
+	outPortIsVirtual: boolean
 }
 
 export function GetConfigFields(): SomeCompanionConfigField[] {
@@ -20,19 +24,58 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 	return [
 		{
 			type: 'dropdown',
-			id: 'inPort',
+			id: 'inPortName',
 			label: 'MIDI In',
 			width: 6,
 			default: inPorts[0] || 'NONE DETECTED',
 			choices: inPortNames,
+			isVisible: (opts) => !opts.inPortIsVirtual,
+		},
+		{
+			type: 'textinput',
+			id: 'inPortVirtualName',
+			label: 'MIDI In',
+			width: 6,
+			default: '',
+			isVisible: (opts) => !!opts.inPortIsVirtual,
+		},
+		{
+			type: 'checkbox',
+			id: 'inPortIsVirtual',
+			label: 'Virtual',
+			width: 6,
+			default: false,
 		},
 		{
 			type: 'dropdown',
-			id: 'outPort',
+			id: 'outPortName',
 			label: 'MIDI Out',
 			width: 6,
 			default: outPorts[0] || 'NONE DETECTED',
 			choices: outPortNames,
+			isVisible: (opts) => !opts.outPortIsVirtual,
+		},
+		{
+			type: 'textinput',
+			id: 'outPortVirtualName',
+			label: 'MIDI Out',
+			width: 6,
+			default: '',
+			isVisible: (opts) => !!opts.outPortIsVirtual,
+		},
+		{
+			type: 'checkbox',
+			id: 'outPortIsVirtual',
+			label: 'Virtual',
+			width: 6,
+			default: false,
+		},
+		{
+			type: 'static-text',
+			id: 'customText',
+			label: 'Choose existing ports, or type a custom name to create a Virtual Port',
+			width: 12,
+			value: '',
 		},
 	]
 }

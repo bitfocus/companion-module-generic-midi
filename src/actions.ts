@@ -44,7 +44,7 @@ export function UpdateActions(self: ModuleInstance): void {
 			callback: async (event, context) => {
 				if (!self.midiOutput.isPortOpen()) {
 					self.log('error', `Output Port "${self.midiOutput.name}" not open!`)
-					return
+					//					return
 				}
 				const opts = JSON.parse(JSON.stringify(event.options))
 
@@ -65,7 +65,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					}
 					opts[action.valId] = val + Number(opts[action.valId] * 1)
 				} else {
-					opts.number--
+					if (opts.number !== undefined) opts.number--
 				}
 
 				msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })

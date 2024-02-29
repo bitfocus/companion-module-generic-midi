@@ -43,14 +43,17 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
-		console.log('Available MIDI Inputs:', midi.getInputs())
-		console.log('Available MIDI Outputs:', midi.getOutputs())
+		this.config = config
+		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
+		const outPortName = this.config.outPortIsVirtual ? this.config.outPortVirtualName : this.config.outPortName
+		console.log('Available MIDI Inputs:', midi.getInputs(), 'Selected: ', inPortName)
+		console.log('Available MIDI Outputs:', midi.getOutputs(), 'Selected: ', outPortName)
 		console.log('\n')
 		this.config = config
 		if (this.midiInput) this.midiInput.close()
 		if (this.midiOutput) this.midiOutput.close()
-		this.midiInput = new midi.Input(this.config.inPort)
-		this.midiOutput = new midi.Output(this.config.outPort)
+		this.midiInput = new midi.Input(inPortName, this.config.inPortIsVirtual)
+		this.midiOutput = new midi.Output(outPortName, this.config.outPortIsVirtual)
 		const midiInStatus = this.midiInput.isPortOpen()
 		const midiOutStatus = this.midiOutput.isPortOpen()
 		this.log('info', `Selected In  Port "${this.midiInput.name}" is ${midiInStatus ? '' : 'NOT '}Open.`)
@@ -96,12 +99,12 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 				smpteFR: args.smpteFR,
 			})
 		})
-		this.midiInput.on('message', (msg: MidiMessage) => {
+		this.midiInput.on('message', (deltaTime: number, msg: MidiMessage) => {
 			HandleMidiIndicators(this, 'midiInData')
 			if (msg.id !== 'mtc') {
 				this.log('debug', `Received: ${msg} from "${this.midiInput.name}"`)
 				this.addToDataStore(msg)
-				if (this.isRecordingActions) this.addToActionRecording(msg)
+				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
 		})
 	}
@@ -144,7 +147,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	// Add a command to the Action Recorder
-	addToActionRecording(msg: MidiMessage): void {
+	addToActionRecording(deltaTime: number, msg: MidiMessage): void {
 		const args = { ...msg.args, useVariables: false }
 		if (args.channel !== undefined) args.channel++
 		if (args.number !== undefined) args.number++
@@ -152,8 +155,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			{
 				actionId: msg.id,
 				options: args,
-			},
-			`${msg.id} ${msg.args}` // uniqueId to stop duplicates
+			}
+			//			`${msg.id} ${this.getValFromMsg(msg).key}` // uniqueId to stop duplicates?
 		)
 	}
 }
