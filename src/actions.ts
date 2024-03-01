@@ -42,9 +42,9 @@ export function UpdateActions(self: ModuleInstance): void {
 			name: String(action.name),
 			options: [],
 			callback: async (event, context) => {
-				if (!self.midiOutput.isPortOpen()) {
+				if (!self.config.outPortIsVirtual && !self.midiOutput.isPortOpen()) {
 					self.log('error', `Output Port "${self.midiOutput.name}" not open!`)
-					//					return
+					return
 				}
 				const opts = JSON.parse(JSON.stringify(event.options))
 

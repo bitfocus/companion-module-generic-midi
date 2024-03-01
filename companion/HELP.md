@@ -1,6 +1,6 @@
 ## companion-module-generic-midi
 
-## A generic MIDI module for Companion (v1.1.0)
+## A generic MIDI module for Companion (v1.1.1)
 
 Supports the following Incoming and Outgoing MIDI message types:
 

@@ -54,8 +54,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		if (this.midiOutput) this.midiOutput.close()
 		this.midiInput = new midi.Input(inPortName, this.config.inPortIsVirtual)
 		this.midiOutput = new midi.Output(outPortName, this.config.outPortIsVirtual)
-		const midiInStatus = this.midiInput.isPortOpen()
-		const midiOutStatus = this.midiOutput.isPortOpen()
+		const midiInStatus = this.config.inPortIsVirtual || this.midiInput.isPortOpen()
+		const midiOutStatus = this.config.outPortIsVirtual || this.midiOutput.isPortOpen()
 		this.log('info', `Selected In  Port "${this.midiInput.name}" is ${midiInStatus ? '' : 'NOT '}Open.`)
 		this.log('info', `Selected Out Port "${this.midiOutput.name}" is ${midiOutStatus ? '' : 'NOT '}Open.`)
 		if (midiInStatus && midiOutStatus) {
