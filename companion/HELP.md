@@ -22,7 +22,8 @@ Supports the following Incoming and Outgoing MIDI message types:
 
 ## To Do:
 
-- Long Sysex support
+- Add timing to Action Recordings
+- Long Sysex message support
 - Filtering of Real-Time messages
 - MSC support?
 
