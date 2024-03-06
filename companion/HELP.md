@@ -1,8 +1,12 @@
-## companion-module-generic-midi
+## Generic MIDI module for Companion - v1.1.2
 
-## A generic MIDI module for Companion (v1.1.2)
+Please visit https://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
-Supports the following Incoming and Outgoing MIDI message types:
+_Andrew Broughton 2024_
+
+---
+
+### This module supports the following MIDI message types:
 
 - Note On
 - Note Off
@@ -14,12 +18,12 @@ Supports the following Incoming and Outgoing MIDI message types:
 - Sysex
 - MIDI Time Code (receive only)
 
-## Features:
+### Features:
 
 - MacOS, Windows, Linux Support
 - MIDI over LAN via rtpMIDI (Network-MIDI on MacOS)
 
-## To Do:
+### To Do:
 
 - Add timing to Action Recordings
 - Long Sysex message support
@@ -27,4 +31,4 @@ Supports the following Incoming and Outgoing MIDI message types:
 - MSC support?
 - Virtual Ports under Windows?
 
-Thanks to Julian Waller for rewriting node-midi to TS and creating a companion TS template!
+Thanks to _Julian Waller_ for rewriting node-midi to TS and creating a companion TS template!
