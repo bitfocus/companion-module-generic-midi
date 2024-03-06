@@ -1,6 +1,6 @@
 ## companion-module-generic-midi
 
-## A generic MIDI module for Companion (v1.1.1)
+## A generic MIDI module for Companion (v1.1.2)
 
 Supports the following Incoming and Outgoing MIDI message types:
 
@@ -18,7 +18,6 @@ Supports the following Incoming and Outgoing MIDI message types:
 
 - MacOS, Windows, Linux Support
 - MIDI over LAN via rtpMIDI (Network-MIDI on MacOS)
-- Virtual Ports (to allow communication to and from apps)
 
 ## To Do:
 
@@ -26,5 +25,6 @@ Supports the following Incoming and Outgoing MIDI message types:
 - Long Sysex message support
 - Filtering of Real-Time messages
 - MSC support?
+- Virtual Ports under Windows?
 
 Thanks to Julian Waller for rewriting node-midi to TS and creating a companion TS template!

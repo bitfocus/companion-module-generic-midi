@@ -44,6 +44,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
 		this.config = config
+		this.config.inPortIsVirtual = false
+		this.config.outPortIsVirtual = false
 		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
 		const outPortName = this.config.outPortIsVirtual ? this.config.outPortVirtualName : this.config.outPortName
 		console.log('Available MIDI Inputs:', midi.getInputs(), 'Selected: ', inPortName)

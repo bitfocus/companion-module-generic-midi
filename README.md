@@ -22,6 +22,8 @@ Supported MIDI Commands:
 
 **REVISION HISTORY**
 
+1.1.2 Remove Virtual Ports
+
 1.1.1 Initial Release
 
 ---

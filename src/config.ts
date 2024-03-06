@@ -21,6 +21,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 	outPorts.forEach((m) => {
 		outPortNames.push({ id: m, label: m })
 	})
+
 	return [
 		{
 			type: 'dropdown',
@@ -29,8 +30,9 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: inPorts[0] || 'NONE DETECTED',
 			choices: inPortNames,
-			isVisible: (opts) => !opts.inPortIsVirtual,
+			//			isVisible: (opts) => !opts.inPortIsVirtual,
 		},
+		/*
 		{
 			type: 'textinput',
 			id: 'inPortVirtualName',
@@ -46,6 +48,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: false,
 		},
+*/
 		{
 			type: 'dropdown',
 			id: 'outPortName',
@@ -53,8 +56,9 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: outPorts[0] || 'NONE DETECTED',
 			choices: outPortNames,
-			isVisible: (opts) => !opts.outPortIsVirtual,
+			//			isVisible: (opts) => !opts.outPortIsVirtual,
 		},
+		/*
 		{
 			type: 'textinput',
 			id: 'outPortVirtualName',
@@ -77,5 +81,6 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 12,
 			value: '',
 		},
+*/
 	]
 }
