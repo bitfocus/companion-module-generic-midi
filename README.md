@@ -1,6 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
+v1.1.3
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -21,6 +22,8 @@ Supported MIDI Commands:
 ---
 
 **REVISION HISTORY**
+
+1.1.3 Keep only last MIDI message per type in Recorder
 
 1.1.2 Remove Virtual Ports
 

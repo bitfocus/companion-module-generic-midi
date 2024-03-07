@@ -157,8 +157,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			{
 				actionId: msg.id,
 				options: args,
-			}
-			//			`${msg.id} ${this.getValFromMsg(msg).key}` // uniqueId to stop duplicates?
+			},
+			`${msg.id} ${this.getValFromMsg(msg).key}` // uniqueId to stop duplicates?
 		)
 	}
 }
