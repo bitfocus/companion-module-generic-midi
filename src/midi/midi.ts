@@ -13,7 +13,7 @@ export class Input extends EventEmitter {
 	constructor(name: string, virtual?: boolean) {
 		super()
 		this._input = new node_midi.Input()
-		this._input.ignoreTypes(false, false, false)
+		this._input.ignoreTypes(false, true, true) // Allow Sysex but ignore Timing & Active Sense
 		this._pendingSysex = false
 		this._sysex = []
 		this._smpte = []
