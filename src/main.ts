@@ -1,6 +1,6 @@
 import { InstanceBase, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { GetConfigFields, type ModuleConfig } from './config.js'
-import { UpdateVariableDefinitions, HandleMidiIndicators } from './variables.js'
+import { UpdateVariableDefinitions, HandleMidiIndicators, UpdateLastMsg } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
@@ -102,18 +102,19 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			})
 		})
 		this.midiInput.on('message', (deltaTime: number, msg: MidiMessage) => {
-			HandleMidiIndicators(this, 'midiInData')
 			if (msg.id !== 'mtc') {
 				this.log('debug', `Received: ${msg} from "${this.midiInput.name}"`)
 				this.addToDataStore(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
+			HandleMidiIndicators(this, 'midiInData')
 		})
 	}
 
 	addToDataStore(msg: MidiMessage): void {
 		const data: DataStoreEntry = this.getValFromMsg(msg)
 		if (data.key > 0) {
+			UpdateLastMsg(this, msg, data.val)
 			this.dataStore.set(data.key, data.val)
 			this.checkFeedbacks()
 		}
@@ -128,13 +129,18 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	getValFromMsg(msg: MidiMessage): DataStoreEntry {
-		const lastIndex: number = msg.bytes.length - 1
+		let lastIndex: number = msg.bytes.length - 1
 		let parsedKey = 0
 		let parsedVal = 0
 		// val is last byte, key is all bytes up to the last
 		// e.g. [0x90, 0x60, 0x7F]: key = 0x9060, val = 0x7F
 		if (lastIndex >= 0 && msg.status < 0xf0) {
-			parsedVal = msg.bytes[lastIndex]
+			if (msg.id == 'pitch') {
+				parsedVal = msg.args.value ?? 0
+				lastIndex--
+			} else {
+				parsedVal = msg.bytes[lastIndex]
+			}
 			for (let i = 0; i < lastIndex; i++) {
 				parsedKey += msg.bytes[i] << ((lastIndex - i - 1) << 3)
 			}
