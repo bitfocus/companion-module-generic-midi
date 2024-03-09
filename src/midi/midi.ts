@@ -132,7 +132,7 @@ export function getInputs(): string[] {
 		let numberedPortName = portName
 		while (inputs.includes(numberedPortName)) {
 			counter++
-			numberedPortName = portName + counter
+			numberedPortName += ` ${counter}`
 		}
 		inputs.push(numberedPortName)
 	}
@@ -149,7 +149,7 @@ export function getOutputs(): string[] {
 		let numberedPortName = portName
 		while (outputs.includes(numberedPortName)) {
 			counter++
-			numberedPortName = portName + counter
+			numberedPortName += ` ${counter}`
 		}
 		outputs.push(numberedPortName)
 	}

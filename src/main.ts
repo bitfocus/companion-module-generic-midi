@@ -48,8 +48,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		this.config.outPortIsVirtual = false
 		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
 		const outPortName = this.config.outPortIsVirtual ? this.config.outPortVirtualName : this.config.outPortName
-		console.log('Available MIDI Inputs:', midi.getInputs(), 'Selected: ', inPortName)
-		console.log('Available MIDI Outputs:', midi.getOutputs(), 'Selected: ', outPortName)
+		console.log('Available MIDI Inputs: ', midi.getInputs(), '\n\tSelected MIDI Input:  ', inPortName)
+		console.log('Available MIDI Outputs:', midi.getOutputs(), '\n\tSelected MIDI Output: ', outPortName)
 		console.log('\n')
 		this.config = config
 		if (this.midiInput) this.midiInput.close()
