@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v1.1.5
+v1.1.6
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -22,6 +22,8 @@ Supported MIDI Commands:
 ---
 
 **REVISION HISTORY**
+
+1.1.6 Ignore unsupported commands, bug fix for MTC
 
 1.1.5 Add "Last Message Received" Variable
 

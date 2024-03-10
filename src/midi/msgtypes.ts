@@ -136,7 +136,7 @@ export class MidiMessage {
 				incoming = new Mtc(msg.type!, msg.value!)
 				break
 			default:
-				console.log(`Unrecognized MIDI message. Status = ${status}`)
+				console.log(`Unsupported MIDI message. Status = ${hex(status)}`)
 				return
 		}
 

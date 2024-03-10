@@ -13,7 +13,7 @@ export class Input extends EventEmitter {
 	constructor(name: string, virtual?: boolean) {
 		super()
 		this._input = new node_midi.Input()
-		this._input.ignoreTypes(false, true, true) // Allow Sysex but ignore Timing & Active Sense
+		this._input.ignoreTypes(false, false, false) // Allow all message types
 		this._pendingSysex = false
 		this._sysex = []
 		this._smpte = []
@@ -32,11 +32,12 @@ export class Input extends EventEmitter {
 		}
 
 		this._input.on('message', (deltaTime: number, bytes: number[]): void => {
-			// a long sysex can be sent in multiple chunks, depending on the RtMidi buffer size
+			// not dealing with sysex chunks longer than the buffer ATM
 
 			const msg = MidiMessage.parseMessage(bytes)
+			if (msg === undefined) return
 			this.emit('message', deltaTime, msg)
-			if (msg!.id == 'mtc') {
+			if (msg.id == 'mtc') {
 				this.parseMtc(msg as Mtc)
 			}
 		})
