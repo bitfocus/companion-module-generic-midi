@@ -177,8 +177,8 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 			},
 		},
 
-		midiInData: {
-			name: 'MIDI Data Incoming?',
+		midiIn: {
+			name: 'MIDI Message Incoming',
 			type: 'boolean',
 			defaultStyle: {
 				bgcolor: combineRgb(255, 0, 0),
@@ -186,12 +186,12 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 			},
 			options: [],
 			callback: async (): Promise<boolean> => {
-				return !!self.getVariableValue('midiInData')
+				return !!self.getVariableValue('midiIn')
 			},
 		},
 
-		midiOutData: {
-			name: 'MIDI Data Outgoing?',
+		midiOut: {
+			name: 'MIDI Message Outgoing',
 			type: 'boolean',
 			defaultStyle: {
 				bgcolor: combineRgb(255, 0, 0),
@@ -199,7 +199,7 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 			},
 			options: [],
 			callback: async (): Promise<boolean> => {
-				return !!self.getVariableValue('midiOutData')
+				return !!self.getVariableValue('midiOut')
 			},
 		},
 	})

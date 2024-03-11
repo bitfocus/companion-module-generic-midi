@@ -3,8 +3,8 @@ import type { ModuleInstance } from './main.js'
 import { IMsgArgs, MidiMessage } from './midi/msgtypes.js'
 
 const variables: CompanionVariableDefinition[] = [
-	{ variableId: 'midiInData', name: 'MIDI Data Incoming' },
-	{ variableId: 'midiOutData', name: 'MIDI Data Outgoing' },
+	{ variableId: 'midiIn', name: 'MIDI Message Incoming' },
+	{ variableId: 'midiOut', name: 'MIDI Message Outgoing' },
 	{ variableId: 'lastMessage', name: 'Last Message Received' },
 	{ variableId: 'smpte', name: 'SMPTE TC from MTC' },
 	{ variableId: 'smpteFR', name: 'SMPTE Frame Rate from MTC' },

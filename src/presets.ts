@@ -6,7 +6,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 		midi_in: {
 			type: 'button', // This must be 'button' for now
 			category: 'Indicators', // This groups presets into categories in the ui. Try to create logical groups to help users find presets
-			name: `MIDI Data In Indicator`, // A name for the preset. Shown to the user when they hover over it
+			name: `MIDI Message In Indicator`, // A name for the preset. Shown to the user when they hover over it
 			style: {
 				// This is the minimal set of style properties you must define
 				text: `MIDI IN`, // You can use variables from your module here
@@ -17,7 +17,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 			steps: [],
 			feedbacks: [
 				{
-					feedbackId: 'midiInData',
+					feedbackId: 'midiIn',
 					options: {},
 					style: {
 						color: combineRgb(255, 255, 255),
@@ -29,7 +29,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 		midi_out: {
 			type: 'button',
 			category: 'Indicators',
-			name: `MIDI Data Out Indicator`,
+			name: `MIDI Message Out Indicator`,
 			style: {
 				text: `MIDI OUT`,
 				size: 'auto',
@@ -39,7 +39,7 @@ export function UpdatePresets(self: ModuleInstance): void {
 			steps: [],
 			feedbacks: [
 				{
-					feedbackId: 'midiOutData',
+					feedbackId: 'midiOut',
 					options: {},
 					style: {
 						color: combineRgb(255, 255, 255),

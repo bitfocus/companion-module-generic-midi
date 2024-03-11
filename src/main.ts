@@ -107,7 +107,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 				this.addToDataStore(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
-			HandleMidiIndicators(this, 'midiInData')
+			HandleMidiIndicators(this, 'midiIn')
 		})
 	}
 

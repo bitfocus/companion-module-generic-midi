@@ -71,7 +71,7 @@ export function UpdateActions(self: ModuleInstance): void {
 				msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
 				self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
 				self.midiOutput.send(msg!)
-				HandleMidiIndicators(self, 'midiOutData')
+				HandleMidiIndicators(self, 'midiOut')
 			},
 		}
 
