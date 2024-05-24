@@ -20,7 +20,7 @@
 		"entrypoint": "../dist/main.js"
 	},
 	"legacyIds": [],
-	"manufacturer": "generic",
+	"manufacturer": "Generic",
 	"products": ["MIDI"],
 	"keywords": ["MIDI"]
 }

@@ -44,7 +44,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
 		this.config = config
-		this.config.inPortIsVirtual = false
+		this.config.inPortIsVirtual = false // delete if Virtual ports ever get supported by Windows
 		this.config.outPortIsVirtual = false
 		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
 		const outPortName = this.config.outPortIsVirtual ? this.config.outPortVirtualName : this.config.outPortName
@@ -60,13 +60,10 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		const midiOutStatus = this.config.outPortIsVirtual || this.midiOutput.isPortOpen()
 		this.log('info', `Selected In  Port "${this.midiInput.name}" is ${midiInStatus ? '' : 'NOT '}Open.`)
 		this.log('info', `Selected Out Port "${this.midiOutput.name}" is ${midiOutStatus ? '' : 'NOT '}Open.`)
-		if (midiInStatus && midiOutStatus) {
-			this.updateStatus(InstanceStatus.Ok)
-		} else {
-			if (!midiInStatus && midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI In Port not open')
-			else if (midiInStatus && !midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI Out Port not open')
-			else this.updateStatus(InstanceStatus.Disconnected)
-		}
+		this.updateStatus(InstanceStatus.Disconnected)
+		if (!midiInStatus && midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI In Port not open')
+		if (midiInStatus && !midiOutStatus) this.updateStatus(InstanceStatus.BadConfig, 'MIDI Out Port not open')
+		if (midiInStatus && midiOutStatus) this.updateStatus(InstanceStatus.Ok)
 
 		this.start()
 	}

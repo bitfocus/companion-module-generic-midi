@@ -19,11 +19,11 @@
 		"url": "git+https://github.com/MeestorX/companion-module-generic-midi.git"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.7.0",
+		"@companion-module/base": "~1.8.0",
 		"@julusian/midi": "^3.2.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.4.2",
+		"@companion-module/tools": "^1.5.0",
 		"husky": "^9.0.10",
 		"lint-staged": "^15.2.2",
 		"typescript": "^5.3.3"
