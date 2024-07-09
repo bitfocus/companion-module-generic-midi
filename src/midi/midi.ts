@@ -26,7 +26,11 @@ export class Input extends EventEmitter {
 			const numInputs = this._input.getPortCount()
 			for (let i = 0; i < numInputs; i++) {
 				if (name === this._inputPortNumberedNames[i]) {
-					this._input.openPort(i)
+					try {
+						this._input.openPort(i)
+					} catch (err) {
+						console.log(`Error opening port ${name}.\nError: ${err}`)
+					}
 				}
 			}
 		}
@@ -103,7 +107,11 @@ export class Output {
 			const numOutputs = this._output.getPortCount()
 			for (let i = 0; i < numOutputs; i++) {
 				if (name === outputPortNumberedNames[i]) {
-					this._output.openPort(i)
+					try {
+						this._output.openPort(i)
+					} catch (err) {
+						console.log(`Error opening port ${name}.\nError: ${err}`)
+					}
 				}
 			}
 		}
