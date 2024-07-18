@@ -5,8 +5,8 @@
 	"description": "A generic MIDI module for companion",
 	"version": "1.1.8",
 	"license": "MIT",
-	"repository": "git+https://github.com/MeestorX/companion-module-generic-midi.git",
-	"bugs": "https://github.com/MeestorX/companion-module-generic-midi/issues",
+	"repository": "git+https://github.com/bitfocus/companion-module-generic-midi.git",
+	"bugs": "https://github.com/bitfocus/companion-module-generic-midi/issues",
 	"maintainers": [
 		{
 			"name": "Andrew Broughton",
