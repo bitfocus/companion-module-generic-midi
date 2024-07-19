@@ -16,7 +16,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/MeestorX/companion-module-generic-midi.git"
+		"url": "git+https://github.com/bitfocus/companion-module-generic-midi.git"
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.8.0",
