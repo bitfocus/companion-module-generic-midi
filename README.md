@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v1.1.8
+v1.3.0
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -22,6 +22,18 @@ Supported MIDI Commands:
 ---
 
 **REVISION HISTORY**
+
+### 1.3.0
+* Add config setting to choose to use MIDI TimeStamp for Action Recorder
+* Variable support for all action and feedback parameters
+* New Variables for last incoming message
+* Channel and PC offset correction
+* Update to Node 22
+* Cleanup Actions and Feedbacks
+
+1.2.1 Fix Variable handling for SysEx messages
+
+1.2.0 Add support for MIDI Timestamp with Action Recorder
 
 1.1.8 Error handling for badly behaved devices
 

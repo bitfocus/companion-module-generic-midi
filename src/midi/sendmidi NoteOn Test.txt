@@ -1,0 +1,116 @@
+dev "IAC Driver Bus 1"
+# Set to CH 1
+ch 1
+
+#rapid fire
+
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#10
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#20
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#30
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#40
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#50
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#60
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#70
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#80
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#90
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+on 1 1
+#100

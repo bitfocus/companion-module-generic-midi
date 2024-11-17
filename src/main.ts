@@ -51,7 +51,6 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		console.log('Available MIDI Inputs: ', midi.getInputs(), '\n\tSelected MIDI Input:  ', inPortName)
 		console.log('Available MIDI Outputs:', midi.getOutputs(), '\n\tSelected MIDI Output: ', outPortName)
 		console.log('\n')
-		this.config = config
 		if (this.midiInput) this.midiInput.close()
 		if (this.midiOutput) this.midiOutput.close()
 		this.midiInput = new midi.Input(inPortName, this.config.inPortIsVirtual)
@@ -100,7 +99,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		})
 		this.midiInput.on('message', (deltaTime: number, msg: MidiMessage) => {
 			if (msg.id !== 'mtc') {
-				this.log('debug', `Received: ${msg} from "${this.midiInput.name}"`)
+				this.log('debug', `[${deltaTime.toFixed(2).padStart(6, "0")}] Received: ${msg} from "${this.midiInput.name}"`)
 				this.addToDataStore(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
@@ -154,14 +153,20 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	// Add a command to the Action Recorder
 	addToActionRecording(deltaTime: number, msg: MidiMessage): void {
 		const args = { ...msg.args, useVariables: false }
-		if (args.channel !== undefined) args.channel++
-		if (args.number !== undefined) args.number++
+		let uniqueId = `${msg.id} ${this.getValFromMsg(msg).key}`
+		if (this.config.useTimeStamp) {
+			deltaTime = Math.round(deltaTime * 1000)
+			uniqueId = ''
+		} else {
+			deltaTime = 0
+		}
 		this.recordAction(
 			{
 				actionId: msg.id,
 				options: args,
+				delay: deltaTime,
 			},
-			`${msg.id} ${this.getValFromMsg(msg).key}` // uniqueId to stop duplicates?
+			uniqueId // uniqueId to stop duplicates when not using TimeStamp
 		)
 	}
 }

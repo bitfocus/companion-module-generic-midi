@@ -8,7 +8,6 @@ export function UpdatePresets(self: ModuleInstance): void {
 			category: 'Indicators', // This groups presets into categories in the ui. Try to create logical groups to help users find presets
 			name: `MIDI Message In Indicator`, // A name for the preset. Shown to the user when they hover over it
 			style: {
-				// This is the minimal set of style properties you must define
 				text: `MIDI IN`, // You can use variables from your module here
 				size: 'auto',
 				color: combineRgb(255, 255, 255),

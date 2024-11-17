@@ -7,7 +7,6 @@ export class Input extends EventEmitter {
 	private _smpte: number[]
 	private _pendingSysex: boolean
 	private _sysex: number[]
-	private _inputPortNumberedNames: string[]
 	public name: string
 
 	constructor(name: string, virtual?: boolean) {
@@ -18,14 +17,14 @@ export class Input extends EventEmitter {
 		this._sysex = []
 		this._smpte = []
 		this.name = name
-		this._inputPortNumberedNames = getInputs()
+		const inputPortNumberedNames: string[] = getInputs()
 
 		if (virtual) {
 			this._input.openVirtualPort(name)
 		} else {
 			const numInputs = this._input.getPortCount()
 			for (let i = 0; i < numInputs; i++) {
-				if (name === this._inputPortNumberedNames[i]) {
+				if (name === inputPortNumberedNames[i]) {
 					try {
 						this._input.openPort(i)
 					} catch (err) {

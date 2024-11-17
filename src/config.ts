@@ -8,6 +8,7 @@ export interface ModuleConfig {
 	outPortName: string
 	outPortVirtualName: string
 	outPortIsVirtual: boolean
+	useTimeStamp: boolean
 }
 
 export function GetConfigFields(): SomeCompanionConfigField[] {
@@ -30,9 +31,9 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: inPorts[0] || 'NONE DETECTED',
 			choices: inPortNames,
-			//			isVisible: (opts) => !opts.inPortIsVirtual,
+			//	isVisible: (opts) => !opts.inPortIsVirtual,
 		},
-		/*
+/*
 		{
 			type: 'textinput',
 			id: 'inPortVirtualName',
@@ -56,9 +57,9 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: outPorts[0] || 'NONE DETECTED',
 			choices: outPortNames,
-			//			isVisible: (opts) => !opts.outPortIsVirtual,
+			//	isVisible: (opts) => !opts.outPortIsVirtual,
 		},
-		/*
+/*
 		{
 			type: 'textinput',
 			id: 'outPortVirtualName',
@@ -82,5 +83,13 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			value: '',
 		},
 */
+		{
+			type: 'checkbox',
+			id: 'useTimeStamp',
+			label: 'Use TimeStamp with Action Recorder',
+			tooltip: 'Enable this setting to include a delay time for actions created in Action Recorder',
+			width: 6,
+			default: false,
+		},
 	]
 }

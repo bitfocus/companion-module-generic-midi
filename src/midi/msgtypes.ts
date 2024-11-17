@@ -36,7 +36,7 @@ export interface IMsgArgs {
 	controller?: number
 	pressure?: number
 	value?: number
-	number?: number
+	program?: number
 	song?: number
 }
 
@@ -53,7 +53,7 @@ export class MidiMessage {
 		controller: 0,
 		pressure: 0,
 		value: 0,
-		number: 0,
+		program: 0,
 		song: 0,
 	}
 
@@ -69,11 +69,12 @@ export class MidiMessage {
 	}
 
 	get channel(): number {
-		return this.bytes[0] & 0x0f
+		return (this.bytes[0] & 0x0f) + 1
 	}
 	set channel(v: number) {
+		v-- 	// Channels are normally shown as 1-16 but internally are 0-15
 		v = MidiMessage.constrain(v, 15)
-		this.bytes[0] = (this.bytes[0] & 0xf0) | (v & 0x0f)
+		this.bytes[0] = ((this.bytes[0] & 0xf0) | (v & 0x0f))
 	}
 
 	protected get data1(): number {
@@ -121,7 +122,7 @@ export class MidiMessage {
 				incoming = new ControlChange(msg.channel!, msg.controller!, msg.value!)
 				break
 			case 0xc0:
-				incoming = new ProgramChange(msg.channel!, msg.number!)
+				incoming = new ProgramChange(msg.channel!, msg.program!)
 				break
 			case 0xd0:
 				incoming = new ChannelPressure(msg.channel!, msg.pressure!)
@@ -135,6 +136,8 @@ export class MidiMessage {
 			case 0xf1:
 				incoming = new Mtc(msg.type!, msg.value!)
 				break
+			case 0xf8:
+				return // ignore MIDI Clock messages
 			default:
 				console.log(`Unsupported MIDI message. Status = ${hex(status)}`)
 				return
@@ -264,22 +267,23 @@ class ProgramChange extends MidiMessage {
 		this.id = 'program'
 		this.status = 0xc0
 		this.channel = c
-		this.number = n
+		this.program = n
 	}
 
-	get number() {
-		return this.data1
+	get program() {
+		return this.data1 + 1 	// PC is normally shown as 1-128, but it's internally 0-127
 	}
-	set number(v: number) {
+	set program(v: number) {
+		v--
 		this.data1 = v
 	}
 
 	get args(): IMsgArgs {
-		return { channel: this.channel, number: this.number }
+		return { channel: this.channel, program: this.program }
 	}
 
 	toString(): string {
-		return `${super.toString()}, channel: ${hex(this.channel)}, number: ${hex(this.number)}`
+		return `${super.toString()}, channel: ${hex(this.channel)}, program: ${hex(this.program)}`
 	}
 }
 
