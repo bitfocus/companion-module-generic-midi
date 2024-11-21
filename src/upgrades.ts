@@ -1,4 +1,9 @@
-import type { CompanionStaticUpgradeScript, CompanionStaticUpgradeResult } from '@companion-module/base'
+import type {
+	CompanionStaticUpgradeScript,
+	CompanionStaticUpgradeResult,
+	CompanionStaticUpgradeProps,
+	CompanionUpgradeContext,
+} from '@companion-module/base'
 import type { ModuleConfig } from './config.js'
 
 export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
@@ -6,24 +11,33 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 	 * Place your upgrade scripts here
 	 * Remember that once it has been added it cannot be removed!
 	 */
-	 function (context, props) {
+	function (
+		context: CompanionUpgradeContext<ModuleConfig>,
+		props: CompanionStaticUpgradeProps<ModuleConfig>,
+	): CompanionStaticUpgradeResult<ModuleConfig> {
 		const changes: CompanionStaticUpgradeResult<ModuleConfig> = {
 			updatedConfig: null,
-	 		updatedActions: [],
-	 		updatedFeedbacks: [],
+			updatedActions: [],
+			updatedFeedbacks: [],
 		}
 
-		for (let a of props.actions) {
+		console.log('\nRunning Update Scripts...\n')
+
+		for (const a of props.actions) {
 			if (a.actionId == 'program') {
 				console.log('Updating action\n', a)
 				a.options.program = a.options.number || a.options.program
 				delete a.options.number
-				changes.updatedActions.push(a)
-				console.log('to\n', a)
 			}
+			if (!a.options.chValue) a.options.chValue = a.options.channel
+			if (!a.options.noteValue) a.options.noteValue = a.options.note
+			if (!a.options.ccValue) a.options.ccValue = a.options.controller
+
+			changes.updatedActions.push(a)
+			console.log('to\n', a)
 		}
 
-		for (let f of props.feedbacks) {
+		for (const f of props.feedbacks) {
 			if (f.feedbackId == 'receive_message') {
 				console.log('Updating feedback\n', f)
 				f.feedbackId = String(f.options.msgType)
@@ -41,11 +55,15 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 						f.options.value = f.options.pitch
 						delete f.options.pitch
 				}
-				changes.updatedFeedbacks.push(f)
-				console.log('to\n', f)
 			}
+			if (!f.options.chValue) f.options.chValue = f.options.channel
+			if (!f.options.noteValue) f.options.noteValue = f.options.note
+			if (!f.options.ccValue) f.options.ccValue = f.options.controller
+
+			changes.updatedFeedbacks.push(f)
+			console.log('to\n', f)
 		}
 
-	 	return changes
+		return changes
 	},
 ]
