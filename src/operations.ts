@@ -1,4 +1,4 @@
-import { CompanionActionDefinition, CompanionFeedbackDefinition, SomeCompanionActionInputField, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import { SomeCompanionActionInputField, SomeCompanionFeedbackInputField } from '@companion-module/base'
 
 interface midiMsgType {
 	id: string
@@ -12,14 +12,68 @@ interface midiMsgType {
 }
 
 export const midiMsgTypes: midiMsgType[] = [
-	{ id: 'noteoff', label: 'Note Off', desc: 'Note On Messsage', valId: 'velocity', valLabel: 'Velocity', valMin: 0, valMax: 127, valDefault: 0 },
-	{ id: 'noteon', label: 'Note On', desc: 'Note Off Message', valId: 'velocity', valLabel: 'Velocity', valMin: 0, valMax: 127, valDefault: 127 },
+	{
+		id: 'noteoff',
+		label: 'Note Off',
+		desc: 'Note Off Messsage',
+		valId: 'velocity',
+		valLabel: 'Velocity',
+		valMin: 0,
+		valMax: 127,
+		valDefault: 0,
+	},
+	{
+		id: 'noteon',
+		label: 'Note On',
+		desc: 'Note On Message',
+		valId: 'velocity',
+		valLabel: 'Velocity',
+		valMin: 0,
+		valMax: 127,
+		valDefault: 127,
+	},
 	//		{ id: 'aftertouch', name: 'Aftertouch' },
-	{ id: 'cc', label: 'CC', desc: 'Control Change Message', valId: 'value', valLabel: 'Value', valMin: 0, valMax: 127, valDefault: 0 },
-	{ id: 'program', label: 'Program Change', desc: 'Program Change Message', valId: 'program', valLabel: 'Program Number', valMin: 1, valMax: 128, valDefault: 1 },
+	{
+		id: 'cc',
+		label: 'CC',
+		desc: 'Control Change Message',
+		valId: 'value',
+		valLabel: 'Value',
+		valMin: 0,
+		valMax: 127,
+		valDefault: 0,
+	},
+	{
+		id: 'program',
+		label: 'Program Change',
+		desc: 'Program Change Message',
+		valId: 'program',
+		valLabel: 'Program Number',
+		valMin: 1,
+		valMax: 128,
+		valDefault: 1,
+	},
 	//		{ id: 'channelpressure', 	name: 'Channel Pressure' },
-	{ id: 'pitch', label: 'Pitch Wheel', desc: 'Pitch Wheel Message', valId: 'value', valLabel: 'Value', valMin: 0, valMax: 16383, valDefault: 8192 },
-	{ id: 'sysex', label: 'SysEx', desc: 'System Exclusive Message', valId: 'bytes', valLabel: 'SysEx Bytes', valMin: 0, valMax: 127, valDefault: 0 },
+	{
+		id: 'pitch',
+		label: 'Pitch Wheel',
+		desc: 'Pitch Wheel Message',
+		valId: 'value',
+		valLabel: 'Value',
+		valMin: 0,
+		valMax: 16383,
+		valDefault: 8192,
+	},
+	{
+		id: 'sysex',
+		label: 'SysEx',
+		desc: 'System Exclusive Message',
+		valId: 'bytes',
+		valLabel: 'SysEx Bytes',
+		valMin: 0,
+		valMax: 127,
+		valDefault: 0,
+	},
 	//		{ id: 'mtc', 				name: 'MIDI Time Code' },
 	//		{ id: 'position',			name: 'Song Position Pointer' },
 	//		{ id: 'select',				name: 'Song Select' },
@@ -35,8 +89,7 @@ export const midiMsgTypes: midiMsgType[] = [
 
 type optionTypes = SomeCompanionActionInputField[] | SomeCompanionFeedbackInputField[]
 
-export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optionTypes {
-
+export function createOptions(newOpts: optionTypes, midiOp: midiMsgType): optionTypes {
 	if (['noteoff', 'noteon', 'cc', 'program', 'pitch'].includes(midiOp.id)) {
 		newOpts.push(
 			{
@@ -46,9 +99,9 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				default: 1,
 				min: 1,
 				max: 16,
-				isVisible: (opts) => !opts.useVariables
+				isVisible: (opts) => !opts.useVariables,
 			},
-			{	
+			{
 				id: 'chValue',
 				type: 'textinput',
 				label: 'Channel',
@@ -57,8 +110,8 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				isVisible: (opts) => {
 					if (!opts.chValue) opts.chValue = opts.channel
 					return !!opts.useVariables
-				}
-			}
+				},
+			},
 		)
 	}
 	if (['noteoff', 'noteon'].includes(midiOp.id)) {
@@ -70,9 +123,9 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				default: 60,
 				min: 0,
 				max: 127,
-				isVisible: (opts) => !opts.useVariables
+				isVisible: (opts) => !opts.useVariables,
 			},
-			{	
+			{
 				id: 'noteValue',
 				type: 'textinput',
 				label: 'Note Number',
@@ -81,22 +134,22 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				isVisible: (opts) => {
 					if (!opts.noteValue) opts.noteValue = opts.note
 					return !!opts.useVariables
-				}
-			}
+				},
+			},
 		)
 	}
 	if (midiOp.id == 'cc') {
 		newOpts.push(
 			{
-			id: 'controller',
+				id: 'controller',
 				type: 'number',
 				label: 'Controller',
 				default: 127,
 				min: 0,
 				max: 127,
-				isVisible: (opts) => !opts.useVariables
+				isVisible: (opts) => !opts.useVariables,
 			},
-			{	
+			{
 				id: 'ccValue',
 				type: 'textinput',
 				label: 'Controller',
@@ -105,8 +158,8 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				isVisible: (opts) => {
 					if (!opts.ccValue) opts.ccValue = opts.controller
 					return !!opts.useVariables
-				}
-			}
+				},
+			},
 		)
 	}
 	if (midiOp.id != 'sysex') {
@@ -126,8 +179,8 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				label: midiOp.valLabel,
 				default: String(midiOp.valDefault),
 				useVariables: true,
-				isVisible: (opts, data) => {
-					return (!!opts.useVariables || !!opts.relValue) && !opts.createVar 
+				isVisible: (opts) => {
+					return (!!opts.useVariables || !!opts.relValue) && !opts.createVar
 				},
 				required: true,
 			},
@@ -136,20 +189,18 @@ export function createOptions (newOpts: optionTypes, midiOp: midiMsgType): optio
 				type: 'checkbox',
 				label: 'Use Variables',
 				default: false,
-			}
+			},
 		)
 	} else {
-		newOpts.push(
-			{
-				id: 'bytes',
-				type: 'textinput',
-				label: midiOp.valLabel,
-				tooltip:
-					'Enter a string of decimal or hex digits, with spaces or commas between. MUST start with 0xF0 or 240 and end with 0xF7 or 247',
-				default: '',
-				useVariables: true,
-			}
-		)
+		newOpts.push({
+			id: 'bytes',
+			type: 'textinput',
+			label: midiOp.valLabel,
+			tooltip:
+				'Enter a string of decimal or hex digits, with spaces or commas between. MUST start with 0xF0 or 240 and end with 0xF7 or 247',
+			default: '',
+			useVariables: true,
+		})
 	}
 
 	return newOpts
