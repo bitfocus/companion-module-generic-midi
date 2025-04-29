@@ -3,7 +3,7 @@
 	"name": "generic-midi",
 	"shortname": "generic-midi",
 	"description": "A generic MIDI module for companion",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-generic-midi.git",
 	"bugs": "https://github.com/bitfocus/companion-module-generic-midi/issues",

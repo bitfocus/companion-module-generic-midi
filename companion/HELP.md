@@ -1,4 +1,4 @@
-## Generic MIDI module for Companion - v1.3.1
+## Generic MIDI module for Companion - v1.3.2
 
 Please visit https://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
