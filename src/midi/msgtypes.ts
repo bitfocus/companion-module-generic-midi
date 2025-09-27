@@ -72,9 +72,9 @@ export class MidiMessage {
 		return (this.bytes[0] & 0x0f) + 1
 	}
 	set channel(v: number) {
-		v-- 	// Channels are normally shown as 1-16 but internally are 0-15
+		v-- // Channels are normally shown as 1-16 but internally are 0-15
 		v = MidiMessage.constrain(v, 15)
-		this.bytes[0] = ((this.bytes[0] & 0xf0) | (v & 0x0f))
+		this.bytes[0] = (this.bytes[0] & 0xf0) | (v & 0x0f)
 	}
 
 	protected get data1(): number {
@@ -178,7 +178,7 @@ class NoteOff extends MidiMessage {
 
 	toString(): string {
 		return `${super.toString()}, channel: ${hex(this.channel)}, note: ${hex(this.note)}, velocity: ${hex(
-			this.velocity
+			this.velocity,
 		)}`
 	}
 }
@@ -221,7 +221,7 @@ class Aftertouch extends MidiMessage {
 
 	toString(): string {
 		return `${super.toString()}, channel: ${hex(this.channel)}, note: ${hex(this.note)}, pressure: ${hex(
-			this.pressure
+			this.pressure,
 		)}`
 	}
 }
@@ -256,7 +256,7 @@ class ControlChange extends MidiMessage {
 
 	toString(): string {
 		return `${super.toString()}, channel: ${hex(this.channel)}, controller: ${hex(this.controller)}, value: ${hex(
-			this.value
+			this.value,
 		)}`
 	}
 }
@@ -271,7 +271,7 @@ class ProgramChange extends MidiMessage {
 	}
 
 	get program() {
-		return this.data1 + 1 	// PC is normally shown as 1-128, but it's internally 0-127
+		return this.data1 + 1 // PC is normally shown as 1-128, but it's internally 0-127
 	}
 	set program(v: number) {
 		v--

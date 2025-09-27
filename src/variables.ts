@@ -47,7 +47,7 @@ export function FBCreatesVar(self: ModuleInstance, msg: MidiMessage, data: numbe
 	AddOrUpdateVar(self, '_' + CreateVarName(msg).name, 'Auto-Created Variable', data)
 }
 
-function CreateVarName(msg: MidiMessage): { name: string, keys: string[] } {
+function CreateVarName(msg: MidiMessage): { name: string; keys: string[] } {
 	// Auto-create a variable name
 
 	let varName = msg.id
@@ -62,7 +62,12 @@ function CreateVarName(msg: MidiMessage): { name: string, keys: string[] } {
 	return { name: varName, keys: msgKeys }
 }
 
-function AddOrUpdateVar(self: ModuleInstance, varName: string, varDescr: string, data: number | string | undefined): void {
+function AddOrUpdateVar(
+	self: ModuleInstance,
+	varName: string,
+	varDescr: string,
+	data: number | string | undefined,
+): void {
 	const varToAdd = { variableId: varName, name: varDescr }
 	const curVarVal = self.getVariableValue(varName)
 	if (curVarVal === undefined) variables.push(varToAdd) // if Variable doesn't exist, add it

@@ -33,7 +33,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			choices: inPortNames,
 			//	isVisible: (opts) => !opts.inPortIsVirtual,
 		},
-/*
+		/*
 		{
 			type: 'textinput',
 			id: 'inPortVirtualName',
@@ -59,7 +59,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			choices: outPortNames,
 			//	isVisible: (opts) => !opts.outPortIsVirtual,
 		},
-/*
+		/*
 		{
 			type: 'textinput',
 			id: 'outPortVirtualName',

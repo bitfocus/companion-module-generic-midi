@@ -5,7 +5,6 @@ import { MidiMessage } from './midi/msgtypes.js'
 import { midiMsgTypes, createOptions } from './operations.js'
 
 export function UpdateActions(self: ModuleInstance): void {
-
 	self.setVariableValues({ midiOutData: false })
 
 	const actions: CompanionActionDefinitions = {}
@@ -15,14 +14,14 @@ export function UpdateActions(self: ModuleInstance): void {
 			options: createOptions([], action),
 			callback: async (event, context): Promise<void> => {
 				const opts = JSON.parse(JSON.stringify(event.options))
-				
+
 				if (!self.config.outPortIsVirtual && !self.midiOutput.isPortOpen()) {
 					self.log('error', `Output Port "${self.midiOutput.name}" not open!`)
 					return
 				}
 
 				if (action.id == 'sysex') {
-					var parsedSysex = await context.parseVariablesInString(opts[action.valId])
+					const parsedSysex = await context.parseVariablesInString(opts[action.valId])
 					opts.bytes = parsedSysex.split(/[ ,]+/).map((n: string): number => parseInt(n))
 				}
 
@@ -64,12 +63,11 @@ export function UpdateActions(self: ModuleInstance): void {
 					type: 'checkbox',
 					label: 'Relative',
 					default: false,
-				}
+				},
 			)
 		}
 
 		actions[action.id] = newAction
-
 	}
 
 	self.setActionDefinitions(actions)
