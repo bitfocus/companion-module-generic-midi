@@ -54,7 +54,7 @@ function CreateVarName(msg: MidiMessage): { name: string; keys: string[] } {
 	const msgKeys = Object.keys(msg.args)
 	for (let i = 0; i < msgKeys.length - 1; i++) {
 		const key = msgKeys[i] as keyof IMsgArgs
-		let val: number | undefined = Number(msg.args[key])
+		const val: number | undefined = Number(msg.args[key])
 		if (val !== undefined) {
 			varName += `_${val}`
 		}
