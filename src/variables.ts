@@ -13,6 +13,7 @@ const midiTimers: Map<string, NodeJS.Timeout | null> = new Map()
 
 export function UpdateVariableDefinitions(self: ModuleInstance): void {
 	self.setVariableDefinitions(variables)
+	self.setVariableValues({ midiIn: false, midiOut: false })
 }
 
 export function HandleMidiIndicators(self: ModuleInstance, variable: string): void {
