@@ -42,10 +42,69 @@ export function UpdateActions(self: ModuleInstance): void {
 					opts[action.valId] = val + Number(opts[action.valId] * 1)
 				}
 
-				msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
-				self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
-				self.midiOutput.send(msg!)
-				HandleMidiIndicators(self, 'midiOut')
+				if (opts.sendOverTime) {
+					// Handle sending over time
+					const durationMs = opts.time * 1000
+					const curve = opts.curve
+					const tickMs = 15
+
+					let start = 0
+					if (opts.relValue) {
+						start = self.getFromDataStore(msg!) || 0
+					} else {
+						start = Number(opts.timeStartValue)
+					}
+
+					let end = Number(opts[action.valId] * 1)
+
+					//ensure end value is within bounds
+					if (end < 0) {
+						end = 0
+					} else if (end > 127) {
+						end = 127
+					}
+
+					//if start > end, swap them
+					if (start > end) {
+						//;[start, end] = [end, start]
+					}
+
+					const t0 = Date.now()
+					let last = -1
+
+					interface EaseFunctions {
+						[key: string]: (x: number) => number
+					}
+
+					const easeFunctions: EaseFunctions = {
+						linear: (x: number): number => x,
+						easeIn: (x: number): number => x * x,
+						easeOut: (x: number): number => 1 - (1 - x) * (1 - x),
+						easeInOut: (x: number): number => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2),
+					}
+					const ease: (x: number) => number = easeFunctions[curve as string] || ((x: number): number => x)
+
+					const timer = setInterval(() => {
+						const elapsed = Date.now() - t0
+						const u = Math.min(1, elapsed / durationMs)
+						const val = Math.round(start + (end - start) * ease(u))
+
+						if (val !== last) {
+							opts[action.valId] = val
+							msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
+							self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
+							self.midiOutput.send(msg!)
+							HandleMidiIndicators(self, 'midiOut')
+							last = val
+						}
+						if (u >= 1) clearInterval(timer)
+					}, tickMs)
+				} else {
+					msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
+					self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
+					self.midiOutput.send(msg!)
+					HandleMidiIndicators(self, 'midiOut')
+				}
 			},
 		}
 
@@ -63,6 +122,47 @@ export function UpdateActions(self: ModuleInstance): void {
 					type: 'checkbox',
 					label: 'Relative',
 					default: false,
+				},
+			)
+
+			//over time features - time in seconds, curve type (linear, ease in, ease out, ease in/out)
+			newAction.options.push(
+				{
+					id: 'sendOverTime',
+					type: 'checkbox',
+					label: 'Send Over Time',
+					default: false,
+				},
+				{
+					id: 'timeStartValue',
+					type: 'number',
+					label: 'Start Value',
+					default: 0,
+					min: 0,
+					max: 127,
+					isVisible: (opts) => !!opts.sendOverTime && !opts.relValue,
+				},
+				{
+					id: 'time',
+					type: 'number',
+					label: 'Time (seconds)',
+					default: 1,
+					min: 0,
+					max: 600,
+					isVisible: (opts) => !!opts.sendOverTime,
+				},
+				{
+					id: 'curve',
+					type: 'dropdown',
+					label: 'Curve Type',
+					default: 'linear',
+					choices: [
+						{ label: 'Linear', id: 'linear' },
+						{ label: 'Ease In', id: 'easeIn' },
+						{ label: 'Ease Out', id: 'easeOut' },
+						{ label: 'Ease In/Out', id: 'easeInOut' },
+					],
+					isVisible: (opts) => !!opts.sendOverTime,
 				},
 			)
 		}
