@@ -71,12 +71,18 @@ export class MidiMessage {
 	get channel(): number {
 		return (this.bytes[0] & 0x0f) + 1
 	}
-	set channel(v: number) {
-		v-- // Channels are normally shown as 1-16 but internally are 0-15
-		v = MidiMessage.constrain(v, 15)
-		this.bytes[0] = (this.bytes[0] & 0xf0) | (v & 0x0f)
-	}
 
+	set channel(v: number) {
+	    if (v === 0) {
+	        // Omni Mode
+	        this.bytes[0] = (this.bytes[0] & 0xf0) | 0
+	        return
+	    }
+	
+	    v = MidiMessage.constrain(v - 1, 15)
+	    this.bytes[0] = (this.bytes[0] & 0xf0) | (v & 0x0f)
+	}
+	
 	protected get data1(): number {
 		return this.bytes[1] & 0x7f
 	}
