@@ -95,9 +95,9 @@ export function createOptions(newOpts: optionTypes, midiOp: midiMsgType): option
 			{
 				id: 'channel',
 				type: 'number',
-				label: 'Channel',
+				label: 'Channel (0 = Omni)',
 				default: 1,
-				min: 1,
+				min: 0,
 				max: 16,
 				isVisible: (opts) => !opts.useVariables,
 			},
