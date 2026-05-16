@@ -1,11 +1,15 @@
 import type { ModuleInstance } from './main.js'
-import { CompanionFeedbackDefinition, CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField, combineRgb } from '@companion-module/base'
+import {
+	CompanionFeedbackDefinition,
+	CompanionFeedbackDefinitions,
+	SomeCompanionFeedbackInputField,
+	combineRgb,
+} from '@companion-module/base'
 import { FBCreatesVar } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
 import { midiMsgTypes, createOptions } from './operations.js'
 
 export function UpdateFeedbacks(self: ModuleInstance): void {
-
 	const feedbacks: CompanionFeedbackDefinitions = {}
 	for (const feedback of midiMsgTypes) {
 		const newFeedback: CompanionFeedbackDefinition = {
@@ -46,8 +50,7 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 		}
 
 		if (feedback.id != 'sysex') {
-			newFeedback.options.push(
-			{
+			newFeedback.options.push({
 				id: 'createVar',
 				type: 'checkbox',
 				label: 'Auto-Create Variable',
@@ -57,7 +60,6 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 		}
 
 		feedbacks[feedback.id] = newFeedback
-
 	}
 
 	feedbacks['midiIn'] = {
@@ -89,5 +91,4 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 	}
 
 	self.setFeedbackDefinitions(feedbacks)
-
 }

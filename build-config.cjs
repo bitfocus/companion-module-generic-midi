@@ -1,5 +1,3 @@
 module.exports = {
-	prebuilds: [
-		'@julusian/midi',
-	],
+	prebuilds: ['@julusian/midi'],
 }

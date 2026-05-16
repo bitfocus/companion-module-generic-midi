@@ -99,7 +99,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		})
 		this.midiInput.on('message', (deltaTime: number, msg: MidiMessage) => {
 			if (msg.id !== 'mtc') {
-				this.log('debug', `[${deltaTime.toFixed(2).padStart(6, "0")}] Received: ${msg} from "${this.midiInput.name}"`)
+				this.log('debug', `[${deltaTime.toFixed(2).padStart(6, '0')}] Received: ${msg} from "${this.midiInput.name}"`)
 				this.addToDataStore(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
@@ -166,7 +166,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 				options: args,
 				delay: deltaTime,
 			},
-			uniqueId // uniqueId to stop duplicates when not using TimeStamp
+			uniqueId, // uniqueId to stop duplicates when not using TimeStamp
 		)
 	}
 }
