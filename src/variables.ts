@@ -13,6 +13,7 @@ const midiTimers: Map<string, NodeJS.Timeout | null> = new Map()
 
 export function UpdateVariableDefinitions(self: ModuleInstance): void {
 	self.setVariableDefinitions(variables)
+	self.setVariableValues({ midiIn: false, midiOut: false })
 }
 
 export function HandleMidiIndicators(self: ModuleInstance, variable: string): void {
@@ -47,14 +48,14 @@ export function FBCreatesVar(self: ModuleInstance, msg: MidiMessage, data: numbe
 	AddOrUpdateVar(self, '_' + CreateVarName(msg).name, 'Auto-Created Variable', data)
 }
 
-function CreateVarName(msg: MidiMessage): { name: string, keys: string[] } {
+function CreateVarName(msg: MidiMessage): { name: string; keys: string[] } {
 	// Auto-create a variable name
 
 	let varName = msg.id
 	const msgKeys = Object.keys(msg.args)
 	for (let i = 0; i < msgKeys.length - 1; i++) {
 		const key = msgKeys[i] as keyof IMsgArgs
-		let val: number | undefined = Number(msg.args[key])
+		const val: number | undefined = Number(msg.args[key])
 		if (val !== undefined) {
 			varName += `_${val}`
 		}
@@ -62,7 +63,12 @@ function CreateVarName(msg: MidiMessage): { name: string, keys: string[] } {
 	return { name: varName, keys: msgKeys }
 }
 
-function AddOrUpdateVar(self: ModuleInstance, varName: string, varDescr: string, data: number | string | undefined): void {
+function AddOrUpdateVar(
+	self: ModuleInstance,
+	varName: string,
+	varDescr: string,
+	data: number | string | undefined,
+): void {
 	const varToAdd = { variableId: varName, name: varDescr }
 	const curVarVal = self.getVariableValue(varName)
 	if (curVarVal === undefined) variables.push(varToAdd) // if Variable doesn't exist, add it
