@@ -1,9 +1,11 @@
 {
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+	"type": "connection",
 	"id": "generic-midi",
 	"name": "generic-midi",
 	"shortname": "generic-midi",
 	"description": "A generic MIDI module for companion",
-	"version": "1.3.3",
+	"version": "2.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-generic-midi.git",
 	"bugs": "https://discourse.checkcheckonetwo.com",
@@ -14,10 +16,13 @@
 		}
 	],
 	"runtime": {
-		"type": "node18",
+		"type": "node22",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
-		"entrypoint": "../dist/main.js"
+		"entrypoint": "../dist/main.js",
+		"permissions": {
+			"native-addons": true
+		}
 	},
 	"legacyIds": [],
 	"manufacturer": "Generic",

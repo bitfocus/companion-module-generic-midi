@@ -1,4 +1,4 @@
-import type {
+import {
 	CompanionStaticUpgradeScript,
 	CompanionStaticUpgradeResult,
 	CompanionStaticUpgradeProps,
@@ -13,9 +13,9 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 	 */
 	function (
 		context: CompanionUpgradeContext<ModuleConfig>,
-		props: CompanionStaticUpgradeProps<ModuleConfig>,
-	): CompanionStaticUpgradeResult<ModuleConfig> {
-		const changes: CompanionStaticUpgradeResult<ModuleConfig> = {
+		props: CompanionStaticUpgradeProps<ModuleConfig, undefined>,
+	): CompanionStaticUpgradeResult<ModuleConfig, undefined> {
+		const changes: CompanionStaticUpgradeResult<ModuleConfig, undefined> = {
 			updatedConfig: null,
 			updatedActions: [],
 			updatedFeedbacks: [],
@@ -40,6 +40,7 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 		for (const f of props.feedbacks) {
 			if (f.feedbackId == 'receive_message') {
 				console.log('Updating feedback\n', f)
+				// eslint-disable-next-line @typescript-eslint/no-base-to-string
 				f.feedbackId = String(f.options.msgType)
 				delete f.options.msgType
 				switch (f.feedbackId) {
@@ -62,6 +63,33 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 
 			changes.updatedFeedbacks.push(f)
 			console.log('to\n', f)
+		}
+
+		return changes
+	},
+
+	function (
+		context: CompanionUpgradeContext<ModuleConfig>,
+		props: CompanionStaticUpgradeProps<ModuleConfig, undefined>,
+	): CompanionStaticUpgradeResult<ModuleConfig, undefined> {
+		const changes: CompanionStaticUpgradeResult<ModuleConfig, undefined> = {
+			updatedConfig: null,
+			updatedActions: [],
+			updatedFeedbacks: [],
+		}
+
+		console.log('\nRunning Update Scripts...\n')
+
+		for (const a of props.actions) {
+			console.log('\nUpdating action\n', a)
+
+			if (!a.options.sendOverTime) a.options.sendOverTime = { isExpression: false, value: false }
+			if (!a.options.timeStartValue) a.options.timeStartValue = { isExpression: false, value: 0 }
+			if (!a.options.time) a.options.time = { isExpression: false, value: 0 }
+			if (!a.options.curve) a.options.curve = { isExpression: false, value: 'linear' }
+
+			changes.updatedActions.push(a)
+			console.log('\nto\n', a)
 		}
 
 		return changes

@@ -1,7 +1,7 @@
-import { type SomeCompanionConfigField, DropdownChoice } from '@companion-module/base'
+import { type SomeCompanionConfigField, JsonObject, DropdownChoice } from '@companion-module/base'
 import { getInputs, getOutputs } from './midi/midi.js'
 
-export interface ModuleConfig {
+export interface ModuleConfig extends JsonObject {
 	inPortName: string
 	inPortVirtualName: string
 	inPortIsVirtual: boolean
@@ -9,6 +9,7 @@ export interface ModuleConfig {
 	outPortVirtualName: string
 	outPortIsVirtual: boolean
 	useTimeStamp: boolean
+	autoCreateVars: boolean
 }
 
 export function GetConfigFields(): SomeCompanionConfigField[] {
@@ -49,7 +50,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: false,
 		},
-*/
+		*/
 		{
 			type: 'dropdown',
 			id: 'outPortName',
@@ -82,14 +83,31 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 12,
 			value: '',
 		},
-*/
+		*/
 		{
 			type: 'checkbox',
 			id: 'useTimeStamp',
 			label: 'Use TimeStamp with Action Recorder',
-			tooltip: 'Enable this setting to include a delay time for actions created in Action Recorder',
+			tooltip: 'Enable this setting to include the delay time for actions created in Action Recorder',
 			width: 6,
 			default: false,
+		},
+		{
+			type: 'checkbox',
+			id: 'autoCreateVars',
+			label: 'Enable "Auto-Created Variables function"',
+			tooltip: 'Enable this setting ONLY if you need compatibility with existing Auto-Created variables',
+			width: 6,
+			default: false,
+		},
+		{
+			type: 'static-text',
+			id: 'autoCreateVarNotice',
+			label: '*** Support for the deprecated "Auto-Created Variables function" ***',
+			value:
+				'The "Auto-Create Variable" function has now been superceded by the built-in Local Variables feature within Companion 4.2+.<br>If you still have auto-created variables, please change them to Value Feedbacks as support for Auto-Created Variables may disappear in the future!',
+			tooltip: 'Enable this setting ONLY if you need compatibility with existing Auto-Created variables',
+			width: 12,
 		},
 	]
 }

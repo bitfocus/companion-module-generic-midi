@@ -1,4 +1,4 @@
-import { InstanceBase, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
+import { InstanceBase, InstanceTypes, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { GetConfigFields, type ModuleConfig } from './config.js'
 import { UpdateVariableDefinitions, HandleMidiIndicators, UpdateLastMsg } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
@@ -13,7 +13,7 @@ export interface DataStoreEntry {
 	val: number
 }
 
-export class ModuleInstance extends InstanceBase<ModuleConfig> {
+export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	config!: ModuleConfig // Setup in init()
 	midiInput!: midi.Input
 	midiOutput!: midi.Output
@@ -48,9 +48,15 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		this.config.outPortIsVirtual = false
 		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
 		const outPortName = this.config.outPortIsVirtual ? this.config.outPortVirtualName : this.config.outPortName
-		console.log('Available MIDI Inputs: ', midi.getInputs(), '\n\tSelected MIDI Input:  ', inPortName)
-		console.log('Available MIDI Outputs:', midi.getOutputs(), '\n\tSelected MIDI Output: ', outPortName)
-		console.log('\n')
+		this.log(
+			'debug',
+			`Available MIDI Inputs: ${JSON.stringify(midi.getInputs())}\n\tSelected MIDI Input:  ${inPortName}`,
+		)
+		this.log(
+			'debug',
+			`Available MIDI Outputs: ${JSON.stringify(midi.getOutputs())}\n\tSelected MIDI Output: ${outPortName}`,
+		)
+		this.log('debug', '')
 		if (this.midiInput) this.midiInput.close()
 		if (this.midiOutput) this.midiOutput.close()
 		this.midiInput = new midi.Input(inPortName, this.config.inPortIsVirtual)
@@ -89,7 +95,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	// The main loop
 	start(): void {
-		console.log('\nEntering *main*\n')
+		this.log('debug', '\nEntering *main*\n')
 
 		this.midiInput.on('smpte', (args: { smpte: string; smpteFR: number }) => {
 			this.setVariableValues({
@@ -112,7 +118,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		if (data.key > 0) {
 			UpdateLastMsg(this, msg, data.val)
 			this.dataStore.set(data.key, data.val)
-			this.checkFeedbacks()
+			this.checkAllFeedbacks()
 		}
 	}
 
@@ -152,7 +158,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 	// Add a command to the Action Recorder
 	addToActionRecording(deltaTime: number, msg: MidiMessage): void {
-		const args = { ...msg.args, useVariables: false }
+		const args = { ...msg.args }
 		let uniqueId = `${msg.id} ${this.getValFromMsg(msg).key}`
 		if (this.config.useTimeStamp) {
 			deltaTime = Math.round(deltaTime * 1000)
@@ -171,4 +177,4 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 }
 
-runEntrypoint(ModuleInstance, UpgradeScripts)
+export { UpgradeScripts }

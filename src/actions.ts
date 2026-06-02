@@ -1,4 +1,4 @@
-import type { ModuleInstance } from './main.js'
+import ModuleInstance from './main.js'
 import { CompanionActionDefinition, CompanionActionDefinitions } from '@companion-module/base'
 import { HandleMidiIndicators } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
@@ -12,7 +12,7 @@ export function UpdateActions(self: ModuleInstance): void {
 		const newAction: CompanionActionDefinition = {
 			name: String(action.label),
 			options: createOptions([], action),
-			callback: async (event, context): Promise<void> => {
+			callback: async (event): Promise<void> => {
 				const opts = JSON.parse(JSON.stringify(event.options))
 
 				if (!self.config.outPortIsVirtual && !self.midiOutput.isPortOpen()) {
@@ -21,15 +21,15 @@ export function UpdateActions(self: ModuleInstance): void {
 				}
 
 				if (action.id == 'sysex') {
-					const parsedSysex = await context.parseVariablesInString(opts[action.valId])
+					const parsedSysex = await opts[action.valId]
 					opts.bytes = parsedSysex.split(/[ ,]+/).map((n: string): number => parseInt(n))
 				}
 
-				if (opts.useVariables || opts.relValue) {
-					opts[action.valId] = Number(await context.parseVariablesInString(opts.varValue))
-					if (opts.chValue) opts.channel = Number(await context.parseVariablesInString(opts.chValue))
-					if (opts.noteValue) opts.note = Number(await context.parseVariablesInString(opts.noteValue))
-					if (opts.ccValue) opts.controller = Number(await context.parseVariablesInString(opts.ccValue))
+				if (opts.relValue) {
+					opts[action.valId] = Number(await opts.varValue)
+					if (opts.chValue) opts.channel = Number(await opts.chValue)
+					if (opts.noteValue) opts.note = Number(await opts.noteValue)
+					if (opts.ccValue) opts.controller = Number(await opts.ccValue)
 				}
 
 				let msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
@@ -109,19 +109,30 @@ export function UpdateActions(self: ModuleInstance): void {
 		}
 
 		if (action.id != 'sysex') {
+			newAction.options.at(-1)!.isVisibleExpression = '!$(options:relValue)'
 			newAction.options.push(
+				{
+					id: 'varValue',
+					type: 'number',
+					label: action.valLabel,
+					default: action.valDefault,
+					min: -action.valMax,
+					max: action.valMax,
+					isVisibleExpression: '!!$(options:relValue)',
+				},
 				{
 					id: 'relText',
 					type: 'static-text',
 					label: '** NOTE **',
 					value: 'Relative will only work after a value has been sent from the device!',
-					isVisible: (opts) => !!opts.relValue,
+					isVisibleExpression: '$(options:relValue)',
 				},
 				{
 					id: 'relValue',
 					type: 'checkbox',
 					label: 'Relative',
 					default: false,
+					disableAutoExpression: true,
 				},
 			)
 
@@ -132,6 +143,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					type: 'checkbox',
 					label: 'Send Over Time',
 					default: false,
+					disableAutoExpression: true,
 				},
 				{
 					id: 'timeStartValue',
@@ -140,7 +152,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: 0,
 					min: 0,
 					max: 127,
-					isVisible: (opts) => !!opts.sendOverTime && !opts.relValue,
+					isVisibleExpression: '!!$(options:sendOverTime) && !$(options:relValue)',
 				},
 				{
 					id: 'time',
@@ -149,7 +161,7 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: 1,
 					min: 0,
 					max: 600,
-					isVisible: (opts) => !!opts.sendOverTime,
+					isVisibleExpression: '$(options:sendOverTime)',
 				},
 				{
 					id: 'curve',
@@ -162,7 +174,7 @@ export function UpdateActions(self: ModuleInstance): void {
 						{ label: 'Ease Out', id: 'easeOut' },
 						{ label: 'Ease In/Out', id: 'easeInOut' },
 					],
-					isVisible: (opts) => !!opts.sendOverTime,
+					isVisibleExpression: '$(options:sendOverTime)',
 				},
 			)
 		}

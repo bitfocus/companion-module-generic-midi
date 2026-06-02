@@ -1,15 +1,24 @@
-import { CompanionVariableDefinition } from '@companion-module/base'
-import type { ModuleInstance } from './main.js'
+import { CompanionVariableDefinitions, JsonObject } from '@companion-module/base'
+import ModuleInstance from './main.js'
 import { IMsgArgs, MidiMessage } from './midi/msgtypes.js'
 
-const variables: CompanionVariableDefinition[] = [
-	{ variableId: 'midiIn', name: 'Is a MIDI Message Incoming?' },
-	{ variableId: 'midiOut', name: 'Is a MIDI Message Outgoing?' },
-	{ variableId: 'lastMessage', name: 'Last Message Received' },
-	{ variableId: 'smpte', name: 'SMPTE TC from MTC' },
-	{ variableId: 'smpteFR', name: 'SMPTE Frame Rate from MTC' },
-]
-const midiTimers: Map<string, NodeJS.Timeout | null> = new Map()
+export type midiVars = {
+	midiIn: boolean
+	midiOut: boolean
+	lastMessage: string
+	smpte: string
+	smpteFR: number
+}
+
+const variables: CompanionVariableDefinitions<JsonObject> = {
+	midiIn: { name: 'Is a MIDI Message Incoming?' },
+	midiOut: { name: 'Is a MIDI Message Outgoing?' },
+	lastMessage: { name: 'Last Message Received' },
+	smpte: { name: 'SMPTE TC from MTC' },
+	smpteFR: { name: 'SMPTE Frame Rate from MTC' },
+}
+
+const midiTimers: Map<string, ReturnType<typeof setTimeout> | null> = new Map()
 
 export function UpdateVariableDefinitions(self: ModuleInstance): void {
 	self.setVariableDefinitions(variables)
@@ -69,9 +78,7 @@ function AddOrUpdateVar(
 	varDescr: string,
 	data: number | string | undefined,
 ): void {
-	const varToAdd = { variableId: varName, name: varDescr }
-	const curVarVal = self.getVariableValue(varName)
-	if (curVarVal === undefined) variables.push(varToAdd) // if Variable doesn't exist, add it
+	variables[varName] = { name: varDescr } // if Variable doesn't exist, add it
 	self.setVariableDefinitions(variables)
 	self.setVariableValues({ [varName]: data })
 }

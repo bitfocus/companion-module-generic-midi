@@ -91,106 +91,44 @@ type optionTypes = SomeCompanionActionInputField[] | SomeCompanionFeedbackInputF
 
 export function createOptions(newOpts: optionTypes, midiOp: midiMsgType): optionTypes {
 	if (['noteoff', 'noteon', 'cc', 'program', 'pitch'].includes(midiOp.id)) {
-		newOpts.push(
-			{
-				id: 'channel',
-				type: 'number',
-				label: 'Channel',
-				default: 1,
-				min: 1,
-				max: 16,
-				isVisible: (opts) => !opts.useVariables,
-			},
-			{
-				id: 'chValue',
-				type: 'textinput',
-				label: 'Channel',
-				default: '1',
-				useVariables: true,
-				isVisible: (opts) => {
-					if (!opts.chValue) opts.chValue = opts.channel
-					return !!opts.useVariables
-				},
-			},
-		)
+		newOpts.push({
+			id: 'channel',
+			type: 'number',
+			label: 'Channel',
+			default: 1,
+			min: 1,
+			max: 16,
+		})
 	}
 	if (['noteoff', 'noteon'].includes(midiOp.id)) {
-		newOpts.push(
-			{
-				id: 'note',
-				type: 'number',
-				label: 'Note Number',
-				default: 60,
-				min: 0,
-				max: 127,
-				isVisible: (opts) => !opts.useVariables,
-			},
-			{
-				id: 'noteValue',
-				type: 'textinput',
-				label: 'Note Number',
-				default: '60',
-				useVariables: true,
-				isVisible: (opts) => {
-					if (!opts.noteValue) opts.noteValue = opts.note
-					return !!opts.useVariables
-				},
-			},
-		)
+		newOpts.push({
+			id: 'note',
+			type: 'number',
+			label: 'Note Number',
+			default: 60,
+			min: 0,
+			max: 127,
+		})
 	}
 	if (midiOp.id == 'cc') {
-		newOpts.push(
-			{
-				id: 'controller',
-				type: 'number',
-				label: 'Controller',
-				default: 127,
-				min: 0,
-				max: 127,
-				isVisible: (opts) => !opts.useVariables,
-			},
-			{
-				id: 'ccValue',
-				type: 'textinput',
-				label: 'Controller',
-				default: '127',
-				useVariables: true,
-				isVisible: (opts) => {
-					if (!opts.ccValue) opts.ccValue = opts.controller
-					return !!opts.useVariables
-				},
-			},
-		)
+		newOpts.push({
+			id: 'controller',
+			type: 'number',
+			label: 'Controller',
+			default: 127,
+			min: 0,
+			max: 127,
+		})
 	}
 	if (midiOp.id != 'sysex') {
-		newOpts.push(
-			{
-				id: midiOp.valId,
-				type: 'number',
-				label: midiOp.valLabel,
-				default: midiOp.valDefault,
-				min: midiOp.valMin,
-				max: midiOp.valMax,
-				isVisible: (opts) => !opts.useVariables && !opts.relValue,
-			},
-			{
-				id: 'varValue',
-				type: 'textinput',
-				label: midiOp.valLabel,
-				default: String(midiOp.valDefault),
-				useVariables: true,
-				isVisible: (opts) => {
-					return (!!opts.useVariables || !!opts.relValue) && !opts.createVar
-				},
-				required: true,
-			},
-			{
-				id: 'useVariables',
-				type: 'checkbox',
-				label: 'Use Variables',
-				default: false,
-			},
-		)
+		newOpts.push({
+			id: midiOp.valId,
+			type: 'number',
+			label: midiOp.valLabel,
+			default: midiOp.valDefault,
+			min: midiOp.valMin,
+			max: midiOp.valMax,
+		})
 	} else {
 		newOpts.push({
 			id: 'bytes',
@@ -199,7 +137,6 @@ export function createOptions(newOpts: optionTypes, midiOp: midiMsgType): option
 			tooltip:
 				'Enter a string of decimal or hex digits, with spaces or commas between. MUST start with 0xF0 or 240 and end with 0xF7 or 247',
 			default: '',
-			useVariables: true,
 		})
 	}
 

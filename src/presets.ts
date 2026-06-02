@@ -1,15 +1,14 @@
-import type { ModuleInstance } from './main.js'
+import ModuleInstance from './main.js'
 import { combineRgb } from '@companion-module/base'
 
 export function UpdatePresets(self: ModuleInstance): void {
-	self.setPresetDefinitions({
+	const presets = {
 		midi_in: {
-			type: 'button', // This must be 'button' for now
-			category: 'Indicators', // This groups presets into categories in the ui. Try to create logical groups to help users find presets
-			name: `MIDI Message In Indicator`, // A name for the preset. Shown to the user when they hover over it
+			type: 'simple' as const,
+			name: `MIDI Message In Indicator`,
 			style: {
-				text: `MIDI IN`, // You can use variables from your module here
-				size: 'auto',
+				text: `MIDI IN`,
+				size: 'auto' as const,
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
 			},
@@ -26,12 +25,11 @@ export function UpdatePresets(self: ModuleInstance): void {
 			],
 		},
 		midi_out: {
-			type: 'button',
-			category: 'Indicators',
+			type: 'simple' as const,
 			name: `MIDI Message Out Indicator`,
 			style: {
 				text: `MIDI OUT`,
-				size: 'auto',
+				size: 'auto' as const,
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
 			},
@@ -47,5 +45,22 @@ export function UpdatePresets(self: ModuleInstance): void {
 				},
 			],
 		},
-	})
+	}
+
+	const structure = [
+		{
+			id: 'indicators',
+			name: 'Indicators',
+			definitions: [
+				{
+					id: 'midi_indicators',
+					type: 'simple' as const,
+					name: 'MIDI Indicators',
+					presets: ['midi_in', 'midi_out'],
+				},
+			],
+		},
+	]
+
+	self.setPresetDefinitions(structure, presets)
 }

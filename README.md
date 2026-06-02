@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v1.4.0
+v2.0.0
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -22,6 +22,15 @@ Supported MIDI Commands:
 ---
 
 **REVISION HISTORY**
+
+### 2.0.0
+
+- Re-write to update to API 2
+- Selectable support for Auto-Create Variables (no longer needed in API2)
+
+### 1.4.1
+
+- Add checking for situations where a value is blank while "Auto Create Variable" is selected in a feedback or trigger
 
 ### 1.4.0
 
