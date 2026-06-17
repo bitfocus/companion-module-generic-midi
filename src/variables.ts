@@ -8,6 +8,7 @@ export type midiVars = {
 	lastMessage: string
 	smpte: string
 	smpteFR: number
+	noteStates: boolean[]
 }
 
 const variables: CompanionVariableDefinitions<JsonObject> = {
@@ -16,13 +17,18 @@ const variables: CompanionVariableDefinitions<JsonObject> = {
 	lastMessage: { name: 'Last Message Received' },
 	smpte: { name: 'SMPTE TC from MTC' },
 	smpteFR: { name: 'SMPTE Frame Rate from MTC' },
+	noteStates: { name: 'Current Note States' },
 }
 
 const midiTimers: Map<string, ReturnType<typeof setTimeout> | null> = new Map()
 
 export function UpdateVariableDefinitions(self: ModuleInstance): void {
 	self.setVariableDefinitions(variables)
-	self.setVariableValues({ midiIn: false, midiOut: false })
+	self.setVariableValues({
+		midiIn: false,
+		midiOut: false,
+		noteStates: new Array(128).fill(false),
+	})
 }
 
 export function HandleMidiIndicators(self: ModuleInstance, variable: string): void {

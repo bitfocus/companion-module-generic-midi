@@ -19,6 +19,7 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	midiOutput!: midi.Output
 	dataStore!: Map<number, number>
 	isRecordingActions!: boolean
+	noteStates!: boolean[]
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -27,6 +28,7 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	async init(config: ModuleConfig): Promise<void> {
 		this.config = config
 		this.dataStore = new Map()
+		this.noteStates = new Array(128).fill(false)
 
 		this.updateActions()
 		this.updateFeedbacks()
@@ -107,6 +109,7 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 			if (msg.id !== 'mtc') {
 				this.log('debug', `[${deltaTime.toFixed(2).padStart(6, '0')}] Received: ${msg} from "${this.midiInput.name}"`)
 				this.addToDataStore(msg)
+				this.updateNoteStates(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
 			HandleMidiIndicators(this, 'midiIn')
@@ -120,6 +123,25 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 			this.dataStore.set(data.key, data.val)
 			this.checkAllFeedbacks()
 		}
+	}
+
+	updateNoteStates(msg: MidiMessage): void {
+		if (msg.id !== 'noteon' && msg.id !== 'noteoff') return
+	
+		const note = msg.args.note
+		const velocity = msg.args.velocity
+	
+		if (note === undefined) return
+	
+		if (msg.id === 'noteon' && velocity !== 0) {
+			this.noteStates[note] = true
+		} else {
+			this.noteStates[note] = false
+		}
+	
+		this.setVariableValues({
+			noteStates: this.noteStates,
+		})
 	}
 
 	getFromDataStore(msg: MidiMessage): number | undefined {
