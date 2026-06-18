@@ -103,7 +103,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 		{
 			type: 'static-text',
 			id: 'autoCreateVarNotice',
-			label: '*** Support for the deprecated "Auto-Created Variables function" ***',
+			label: '*** Support for the deprecated "Auto-Created Variable" function ***',
 			value:
 				'The "Auto-Create Variable" function has now been superceded by the built-in Local Variables feature within Companion 4.2+.<br>If you still have auto-created variables, please change them to Value Feedbacks as support for Auto-Created Variables may disappear in the future!',
 			tooltip: 'Enable this setting ONLY if you need compatibility with existing Auto-Created variables',

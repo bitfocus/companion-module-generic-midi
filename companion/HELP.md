@@ -23,6 +23,7 @@ _Andrew Broughton 2026_
 - MacOS, Windows, Linux Support
 - MIDI over LAN via rtpMIDI (Network-MIDI on MacOS)
 - Using incoming Midi Timestamp with Action Recorder
+- noteStates is kept as an array of booleans laid out as `[channel][note #]` e.g. when a noteon message arrives on channel 1, for note 60 then `$(generic-midi:noteStates)[1][60] == true`. If noteoff (or noteon with velocity = 0) arrives on channel 3, note 50, then `$(generic-midi:noteStates)[3][50] == false`.
 
 ### To Do:
 
