@@ -8,7 +8,7 @@ export type midiVars = {
 	lastMessage: string
 	smpte: string
 	smpteFR: number
-	noteStates: boolean[]
+	noteStates: boolean[][]
 }
 
 const variables: CompanionVariableDefinitions<JsonObject> = {
@@ -27,7 +27,7 @@ export function UpdateVariableDefinitions(self: ModuleInstance): void {
 	self.setVariableValues({
 		midiIn: false,
 		midiOut: false,
-		noteStates: new Array(128).fill(false),
+		noteStates: Array.from({ length: 16 }, () => new Array(128).fill(false)),
 	})
 }
 

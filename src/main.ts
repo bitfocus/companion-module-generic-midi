@@ -19,7 +19,7 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	midiOutput!: midi.Output
 	dataStore!: Map<number, number>
 	isRecordingActions!: boolean
-	noteStates!: boolean[]
+	noteStates!: boolean[][]
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -28,7 +28,7 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	async init(config: ModuleConfig): Promise<void> {
 		this.config = config
 		this.dataStore = new Map()
-		this.noteStates = new Array(128).fill(false)
+		this.noteStates = Array.from({ length: 16 }, () => new Array(128).fill(false))
 
 		this.updateActions()
 		this.updateFeedbacks()
@@ -127,18 +127,23 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 
 	updateNoteStates(msg: MidiMessage): void {
 		if (msg.id !== 'noteon' && msg.id !== 'noteoff') return
-	
+
 		const note = msg.args.note
 		const velocity = msg.args.velocity
-	
+		const channel = msg.args.channel
+
 		if (note === undefined) return
-	
+		if (velocity === undefined) return
+		if (channel === undefined) return
+
+		const channelIndex = channel - 1
+
 		if (msg.id === 'noteon' && velocity !== 0) {
-			this.noteStates[note] = true
+			this.noteStates[channelIndex][note] = true
 		} else {
-			this.noteStates[note] = false
+			this.noteStates[channelIndex][note] = false
 		}
-	
+
 		this.setVariableValues({
 			noteStates: this.noteStates,
 		})
