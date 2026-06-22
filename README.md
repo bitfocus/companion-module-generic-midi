@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v2.1.0
+v2.1.1
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -23,7 +23,11 @@ Supported MIDI Commands:
 
 **REVISION HISTORY**
 
-### 2.1.0
+### 2.1.1
+
+- Make sure that noteon with velocity = 0 is seen as noteoff for noteStates
+
+#### 2.1.0
 
 - Added `noteStates[channel][note]` module variable
 

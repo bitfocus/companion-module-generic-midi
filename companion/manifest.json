@@ -5,7 +5,7 @@
 	"name": "generic-midi",
 	"shortname": "generic-midi",
 	"description": "A generic MIDI module for companion",
-	"version": "2.1.0",
+	"version": "2.1.1",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-generic-midi.git",
 	"bugs": "https://discourse.checkcheckonetwo.com",

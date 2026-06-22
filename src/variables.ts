@@ -49,7 +49,7 @@ export function UpdateLastMsg(self: ModuleInstance, msg: MidiMessage, data: numb
 	if (msg.id == 'noteon' || msg.id == 'noteoff') {
 		const noteStates: boolean[][] = (self.getVariableValue('noteStates') as boolean[][]) || []
 		noteStates[msg.channel] ??= []
-		noteStates[msg.channel][msg.args.note!] = msg.id == 'noteon'
+		noteStates[msg.channel][msg.args.note!] = msg.id == 'noteon' && data! > 0
 		self.setVariableValues({ noteStates })
 	}
 
