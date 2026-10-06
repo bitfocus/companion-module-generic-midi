@@ -1,4 +1,4 @@
-import { type SomeCompanionConfigField, JsonObject, DropdownChoice } from '@companion-module/base'
+import type { SomeCompanionConfigField, JsonObject, DropdownChoice } from '@companion-module/base'
 import { getInputs, getOutputs } from './midi/midi.js'
 
 export interface ModuleConfig extends JsonObject {

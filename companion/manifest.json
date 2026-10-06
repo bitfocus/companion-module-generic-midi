@@ -27,5 +27,5 @@
 	"legacyIds": [],
 	"manufacturer": "Generic",
 	"products": ["MIDI"],
-	"keywords": ["MIDI"]
+	"keywords": ["note", "control change", "program change", "sysex", "timecode"]
 }

@@ -5,16 +5,12 @@ import { MidiMessage, Mtc } from './msgtypes.js'
 export class Input extends EventEmitter {
 	private _input
 	private _smpte: number[]
-	private _pendingSysex: boolean
-	private _sysex: number[]
 	public name: string
 
 	constructor(name: string, virtual?: boolean) {
 		super()
 		this._input = new node_midi.Input()
 		this._input.ignoreTypes(false, false, false) // Allow all message types
-		this._pendingSysex = false
-		this._sysex = []
 		this._smpte = []
 		this.name = name
 		const inputPortNumberedNames: string[] = getInputs()

@@ -1,4 +1,4 @@
-import { SomeCompanionActionInputField, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import type { SomeCompanionActionInputField, SomeCompanionFeedbackInputField } from '@companion-module/base'
 
 interface midiMsgType {
 	id: string
@@ -137,6 +137,7 @@ export function createOptions(newOpts: optionTypes, midiOp: midiMsgType): option
 			tooltip:
 				'Enter a string of decimal or hex digits, with spaces or commas between. MUST start with 0xF0 or 240 and end with 0xF7 or 247',
 			default: '',
+			useVariables: true,
 		})
 	}
 

@@ -1,6 +1,6 @@
-import { CompanionVariableDefinitions, JsonObject } from '@companion-module/base'
+import type { CompanionVariableDefinitions } from '@companion-module/base'
 import ModuleInstance from './main.js'
-import { IMsgArgs, MidiMessage } from './midi/msgtypes.js'
+import { type IMsgArgs, MidiMessage } from './midi/msgtypes.js'
 
 export type midiVars = {
 	midiIn: boolean
@@ -11,7 +11,7 @@ export type midiVars = {
 	noteStates: boolean[][]
 }
 
-const variables: CompanionVariableDefinitions<JsonObject> = {
+const variables: CompanionVariableDefinitions<midiVars> = {
 	midiIn: { name: 'Is a MIDI Message Incoming?' },
 	midiOut: { name: 'Is a MIDI Message Outgoing?' },
 	lastMessage: { name: 'Last Message Received' },
@@ -47,10 +47,10 @@ export function UpdateLastMsg(self: ModuleInstance, msg: MidiMessage, data: numb
 	AddOrUpdateVar(self, 'lastMsgType', 'Last Message Type Received', msg.id)
 
 	if (msg.id == 'noteon' || msg.id == 'noteoff') {
-		const noteStates: boolean[][] = (self.getVariableValue('noteStates') as boolean[][]) || []
-		noteStates[msg.channel] ??= []
-		noteStates[msg.channel][msg.args.note!] = msg.id == 'noteon' && data! > 0
-		self.setVariableValues({ noteStates })
+		const channelIndex = msg.channel - 1
+		self.noteStates[channelIndex] ??= []
+		self.noteStates[channelIndex][msg.args.note!] = msg.id == 'noteon' && data! > 0
+		self.setVariableValues({ noteStates: structuredClone(self.noteStates) })
 	}
 
 	for (let i = 0; i < msgInfo.keys.length; i++) {
@@ -87,7 +87,7 @@ function AddOrUpdateVar(
 	varDescr: string,
 	data: number | string | undefined,
 ): void {
-	variables[varName] = { name: varDescr } // if Variable doesn't exist, add it
+	;(variables as Record<string, { name: string }>)[varName] = { name: varDescr } // if Variable doesn't exist, add it
 	self.setVariableDefinitions(variables)
 	self.setVariableValues({ [varName]: data })
 }

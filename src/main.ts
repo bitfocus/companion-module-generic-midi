@@ -1,4 +1,5 @@
-import { InstanceBase, InstanceTypes, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
+import { InstanceBase, InstanceStatus } from '@companion-module/base'
+import type { InstanceTypes, SomeCompanionConfigField } from '@companion-module/base'
 import { GetConfigFields, type ModuleConfig } from './config.js'
 import { UpdateVariableDefinitions, HandleMidiIndicators, UpdateLastMsg } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
@@ -7,18 +8,26 @@ import { UpdateFeedbacks } from './feedbacks.js'
 import { UpdatePresets } from './presets.js'
 import * as midi from './midi/midi.js'
 import { MidiMessage } from './midi/msgtypes.js'
+import type { midiVars } from './variables.js'
+
+interface ModuleTypes extends InstanceTypes {
+	config: ModuleConfig
+	secrets: undefined
+	variables: midiVars
+}
 
 export interface DataStoreEntry {
 	key: number
 	val: number
 }
 
-export default class ModuleInstance extends InstanceBase<InstanceTypes> {
+export default class ModuleInstance extends InstanceBase<ModuleTypes> {
 	config!: ModuleConfig // Setup in init()
 	midiInput!: midi.Input
 	midiOutput!: midi.Output
 	dataStore!: Map<number, number>
 	isRecordingActions!: boolean
+	noteStates: boolean[][] = []
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -43,7 +52,9 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	}
 
 	async configUpdated(config: ModuleConfig): Promise<void> {
+		const autoCreateVarsChanged = this.config?.autoCreateVars !== config.autoCreateVars
 		this.config = config
+		if (autoCreateVarsChanged) this.updateFeedbacks()
 		this.config.inPortIsVirtual = false // delete if Virtual ports ever get supported by Windows
 		this.config.outPortIsVirtual = false
 		const inPortName = this.config.inPortIsVirtual ? this.config.inPortVirtualName : this.config.inPortName
@@ -159,6 +170,9 @@ export default class ModuleInstance extends InstanceBase<InstanceTypes> {
 	// Add a command to the Action Recorder
 	addToActionRecording(deltaTime: number, msg: MidiMessage): void {
 		const args = { ...msg.args }
+		if (msg.id === 'sysex' && args.bytes) {
+			args.bytes = args.bytes.map((byte) => `0x${byte.toString(16).padStart(2, '0')}`) as unknown as number[]
+		}
 		let uniqueId = `${msg.id} ${this.getValFromMsg(msg).key}`
 		if (this.config.useTimeStamp) {
 			deltaTime = Math.round(deltaTime * 1000)

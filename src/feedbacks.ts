@@ -1,9 +1,9 @@
 import ModuleInstance from './main.js'
-import {
+import { combineRgb } from '@companion-module/base'
+import type {
 	CompanionFeedbackDefinition,
 	CompanionFeedbackDefinitions,
 	SomeCompanionFeedbackInputField,
-	combineRgb,
 } from '@companion-module/base'
 import { FBCreatesVar } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
@@ -25,24 +25,29 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 				const opts = JSON.parse(JSON.stringify(event.options))
 
 				if (event.feedbackId == 'sysex') {
-					const parsedSysex = await opts[feedback.valId]
-					opts.bytes = parsedSysex.split(/[ ,]+/).map((n: string): number => parseInt(n))
-				}
-
-				if (opts.relValue) {
-					opts[feedback.valId] = Number(await opts.varValue)
-					if (opts.chValue) opts.channel = Number(await opts.chValue)
-					if (opts.noteValue) opts.note = Number(await opts.noteValue)
-					if (opts.ccValue) opts.controller = Number(await opts.ccValue)
+					const parsedSysex = String(opts[feedback.valId] ?? '')
+					const bytes = parsedSysex
+						.trim()
+						.split(/[\s,]+/)
+						.filter(Boolean)
+						.map((n: string) => (/^0x/i.test(n) ? Number.parseInt(n.slice(2), 16) : Number(n)))
+					if (
+						bytes.some((byte: number) => !Number.isInteger(byte) || byte < 0 || byte > 255) ||
+						bytes[0] !== 0xf0 ||
+						bytes.at(-1) !== 0xf7
+					)
+						return false
+					opts.bytes = bytes
 				}
 
 				const msg = MidiMessage.parseMessage(undefined, { id: event.feedbackId, ...opts })
+				if (!msg) return false
 
-				const dataStoreVal = self.getFromDataStore(msg!)
+				const dataStoreVal = self.getFromDataStore(msg)
 				if (event.feedbackId !== 'sysex' && opts.createVar && self.config.autoCreateVars && msg !== undefined)
 					FBCreatesVar(self, msg, dataStoreVal)
 				if (dataStoreVal == undefined) return false
-				if (dataStoreVal == self.getValFromMsg(msg!).val) {
+				if (dataStoreVal == self.getValFromMsg(msg).val) {
 					return true
 				}
 				return false
@@ -50,7 +55,8 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 		}
 
 		if (feedback.id != 'sysex' && self.config.autoCreateVars) {
-			newFeedback.options.at(-1)!.isVisibleExpression = '!$(options:createVar)'
+			const valueOption = newFeedback.options.at(-1)
+			if (valueOption) valueOption.isVisibleExpression = '!$(options:createVar)'
 			newFeedback.options.push({
 				id: 'createVar',
 				type: 'checkbox',
@@ -62,17 +68,22 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 
 		feedbacks[feedback.id] = newFeedback
 
-		feedbacks[feedback.id + '_value'] = {
-			...newFeedback,
-			name: feedback.label + ' Value',
-			type: 'value',
-			options: newFeedback.options.filter((o) => o.id !== feedback.valId && o.id !== 'createVar'),
-			callback: async (event): Promise<number> => {
-				const opts = JSON.parse(JSON.stringify(event.options))
-				const msgId = event.feedbackId.replace('_value', '')
-				const msg = MidiMessage.parseMessage(undefined, { id: msgId, ...opts })
-				return self.getFromDataStore(msg!) ?? 0
-			},
+		if (feedback.id !== 'sysex') {
+			feedbacks[feedback.id + '_value'] = {
+				name: feedback.label + ' Value',
+				description: feedback.desc,
+				type: 'value',
+				options: newFeedback.options.filter((o) => o.id !== feedback.valId && o.id !== 'createVar'),
+				callback: async (event): Promise<number> => {
+					const opts = JSON.parse(JSON.stringify(event.options))
+					const msgId = event.feedbackId.replace('_value', '')
+					const msg = MidiMessage.parseMessage(undefined, { id: msgId, ...opts })
+					if (!msg) return undefined as unknown as number
+					const value = self.getFromDataStore(msg)
+					if (value === undefined) return undefined as unknown as number
+					return msgId === 'program' ? value + 1 : value
+				},
+			}
 		}
 	}
 

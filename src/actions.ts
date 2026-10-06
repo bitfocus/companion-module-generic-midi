@@ -1,11 +1,11 @@
 import ModuleInstance from './main.js'
-import { CompanionActionDefinition, CompanionActionDefinitions } from '@companion-module/base'
+import type { CompanionActionDefinition, CompanionActionDefinitions } from '@companion-module/base'
 import { HandleMidiIndicators } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
 import { midiMsgTypes, createOptions } from './operations.js'
 
 export function UpdateActions(self: ModuleInstance): void {
-	self.setVariableValues({ midiOutData: false })
+	self.setVariableValues({ midiOut: false })
 
 	const actions: CompanionActionDefinitions = {}
 	for (const action of midiMsgTypes) {
@@ -21,20 +21,38 @@ export function UpdateActions(self: ModuleInstance): void {
 				}
 
 				if (action.id == 'sysex') {
-					const parsedSysex = await opts[action.valId]
-					opts.bytes = parsedSysex.split(/[ ,]+/).map((n: string): number => parseInt(n))
+					const parsedSysex = String(opts[action.valId] ?? '')
+					const bytes = parsedSysex
+						.trim()
+						.split(/[\s,]+/)
+						.filter(Boolean)
+						.map((n: string) => (/^0x/i.test(n) ? Number.parseInt(n.slice(2), 16) : Number(n)))
+					if (
+						bytes.some((byte: number) => !Number.isInteger(byte) || byte < 0 || byte > 255) ||
+						bytes[0] !== 0xf0 ||
+						bytes.at(-1) !== 0xf7
+					) {
+						self.log(
+							'warn',
+							'Invalid SysEx message. Bytes must be integers from 0 to 255 and start with F0 and end with F7.',
+						)
+						return
+					}
+					opts.bytes = bytes
 				}
 
 				if (opts.relValue) {
-					opts[action.valId] = Number(await opts.varValue)
-					if (opts.chValue) opts.channel = Number(await opts.chValue)
-					if (opts.noteValue) opts.note = Number(await opts.noteValue)
-					if (opts.ccValue) opts.controller = Number(await opts.ccValue)
+					opts[action.valId] = Number(opts.varValue)
+					if (!Number.isFinite(opts[action.valId])) {
+						self.log('warn', 'Invalid relative MIDI value')
+						return
+					}
 				}
 
 				let msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
+				if (!msg) return
 				if (opts.relValue) {
-					const val = self.getFromDataStore(msg!)
+					const val = self.getFromDataStore(msg)
 					if (val === undefined) {
 						self.log('info', 'Relative value not sent. Current value from device is needed!')
 						return
@@ -50,7 +68,7 @@ export function UpdateActions(self: ModuleInstance): void {
 
 					let start = 0
 					if (opts.relValue) {
-						start = self.getFromDataStore(msg!) || 0
+						start = self.getFromDataStore(msg) ?? 0
 					} else {
 						start = Number(opts.timeStartValue)
 					}
@@ -93,7 +111,7 @@ export function UpdateActions(self: ModuleInstance): void {
 							opts[action.valId] = val
 							msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
 							self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
-							self.midiOutput.send(msg!)
+							if (msg) self.midiOutput.send(msg)
 							HandleMidiIndicators(self, 'midiOut')
 							last = val
 						}
@@ -101,21 +119,23 @@ export function UpdateActions(self: ModuleInstance): void {
 					}, tickMs)
 				} else {
 					msg = MidiMessage.parseMessage(undefined, { id: action.id, ...opts })
+					if (!msg) return
 					self.log('debug', `Sending:  ${msg} to "${self.midiOutput.name}"`)
-					self.midiOutput.send(msg!)
+					self.midiOutput.send(msg)
 					HandleMidiIndicators(self, 'midiOut')
 				}
 			},
 		}
 
 		if (action.id != 'sysex') {
-			newAction.options.at(-1)!.isVisibleExpression = '!$(options:relValue)'
+			const valueOption = newAction.options.at(-1)
+			if (valueOption) valueOption.isVisibleExpression = '!$(options:relValue)'
 			newAction.options.push(
 				{
 					id: 'varValue',
 					type: 'number',
 					label: action.valLabel,
-					default: action.valDefault,
+					default: 0,
 					min: -action.valMax,
 					max: action.valMax,
 					isVisibleExpression: '!!$(options:relValue)',

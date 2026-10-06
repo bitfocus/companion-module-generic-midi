@@ -1,13 +1,13 @@
 node_modules/
 package-lock.json
+/*.tgz
 /pkg
 /pkg.tgz
 /dist
 DEBUG-*
 .DS_Store
-.vscode/
+/.vscode
 companion-module-generic-midi.code-workspace
 .eslintrc.cjs
-.husky
 src/midi/sendmidi.txt
-.yarn/
+/.yarn

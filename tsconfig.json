@@ -1,8 +1,5 @@
 {
 	"extends": "./tsconfig.build.json",
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules/**"],
-	"compilerOptions": {
-		"lib": ["es2023", "dom"]
-	}
+	"exclude": ["node_modules/**"]
 }

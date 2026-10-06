@@ -1,4 +1,5 @@
-import {
+import { FixupNumericOrVariablesValueToExpressions } from '@companion-module/base'
+import type {
 	CompanionStaticUpgradeScript,
 	CompanionStaticUpgradeResult,
 	CompanionStaticUpgradeProps,
@@ -12,7 +13,7 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 	 * Remember that once it has been added it cannot be removed!
 	 */
 	function (
-		context: CompanionUpgradeContext<ModuleConfig>,
+		_context: CompanionUpgradeContext<ModuleConfig>,
 		props: CompanionStaticUpgradeProps<ModuleConfig, undefined>,
 	): CompanionStaticUpgradeResult<ModuleConfig, undefined> {
 		const changes: CompanionStaticUpgradeResult<ModuleConfig, undefined> = {
@@ -21,53 +22,84 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 			updatedFeedbacks: [],
 		}
 
-		console.log('\nRunning Update Scripts...\n')
-
 		for (const a of props.actions) {
-			if (a.actionId == 'program') {
-				console.log('Updating action\n', a)
-				a.options.program = a.options.number || a.options.program
+			let changed = false
+			if (a.actionId == 'program' && a.options.number !== undefined) {
+				const program = a.options.number
+				if (program !== undefined && a.options.program === undefined) a.options.program = program
 				delete a.options.number
+				changed = true
 			}
-			if (!a.options.chValue) a.options.chValue = a.options.channel
-			if (!a.options.noteValue) a.options.noteValue = a.options.note
-			if (!a.options.ccValue) a.options.ccValue = a.options.controller
-
-			changes.updatedActions.push(a)
-			console.log('to\n', a)
+			if (changed) changes.updatedActions.push(a)
 		}
 
 		for (const f of props.feedbacks) {
 			if (f.feedbackId == 'receive_message') {
-				console.log('Updating feedback\n', f)
-				// eslint-disable-next-line @typescript-eslint/no-base-to-string
-				f.feedbackId = String(f.options.msgType)
+				const msgType = f.options.msgType
+				const rawId = msgType && !msgType.isExpression ? msgType.value : undefined
+				const id = typeof rawId === 'string' || typeof rawId === 'number' ? String(rawId) : ''
+				if (!id) continue
+				f.feedbackId = id
 				delete f.options.msgType
+				let key: string | undefined
 				switch (f.feedbackId) {
 					case 'program':
-						f.options.program = f.options.number
-						delete f.options.number
+						key = 'number'
 						break
 					case 'sysex':
-						f.options.bytes = f.options.message
-						delete f.options.message
+						key = 'message'
 						break
 					case 'pitch':
-						f.options.value = f.options.pitch
-						delete f.options.pitch
+						key = 'pitch'
+						break
 				}
+				if (key && f.options[key] !== undefined) {
+					f.options[key === 'number' ? 'program' : key === 'message' ? 'bytes' : 'value'] = f.options[key]
+					delete f.options[key]
+				}
+				changes.updatedFeedbacks.push(f)
 			}
-			if (!f.options.chValue) f.options.chValue = f.options.channel
-			if (!f.options.noteValue) f.options.noteValue = f.options.note
-			if (!f.options.ccValue) f.options.ccValue = f.options.controller
-
-			changes.updatedFeedbacks.push(f)
-			console.log('to\n', f)
 		}
 
 		return changes
 	},
 
+	function (
+		_context: CompanionUpgradeContext<ModuleConfig>,
+		props: CompanionStaticUpgradeProps<ModuleConfig, undefined>,
+	): CompanionStaticUpgradeResult<ModuleConfig, undefined> {
+		const changes: CompanionStaticUpgradeResult<ModuleConfig, undefined> = {
+			updatedConfig: null,
+			updatedActions: [],
+			updatedFeedbacks: [],
+		}
+
+		for (const a of props.actions) {
+			if (a.actionId === 'sysex') continue
+			let changed = false
+
+			if (!a.options.sendOverTime) {
+				a.options.sendOverTime = { isExpression: false, value: false }
+				changed = true
+			}
+			if (!a.options.timeStartValue) {
+				a.options.timeStartValue = { isExpression: false, value: 0 }
+				changed = true
+			}
+			if (!a.options.time) {
+				a.options.time = { isExpression: false, value: 1 }
+				changed = true
+			}
+			if (!a.options.curve) {
+				a.options.curve = { isExpression: false, value: 'linear' }
+				changed = true
+			}
+
+			if (changed) changes.updatedActions.push(a)
+		}
+
+		return changes
+	},
 	function (
 		context: CompanionUpgradeContext<ModuleConfig>,
 		props: CompanionStaticUpgradeProps<ModuleConfig, undefined>,
@@ -77,21 +109,60 @@ export const UpgradeScripts: CompanionStaticUpgradeScript<ModuleConfig>[] = [
 			updatedActions: [],
 			updatedFeedbacks: [],
 		}
+		let enableAutoCreateVars = false
 
-		console.log('\nRunning Update Scripts...\n')
-
-		for (const a of props.actions) {
-			console.log('\nUpdating action\n', a)
-
-			if (!a.options.sendOverTime) a.options.sendOverTime = { isExpression: false, value: false }
-			if (!a.options.timeStartValue) a.options.timeStartValue = { isExpression: false, value: 0 }
-			if (!a.options.time) a.options.time = { isExpression: false, value: 0 }
-			if (!a.options.curve) a.options.curve = { isExpression: false, value: 'linear' }
-
-			changes.updatedActions.push(a)
-			console.log('\nto\n', a)
+		for (const action of props.actions) {
+			if (action.options.useVariables?.value !== true) continue
+			const valId =
+				action.actionId === 'program'
+					? 'program'
+					: action.actionId === 'sysex'
+						? 'bytes'
+						: action.actionId === 'noteon' || action.actionId === 'noteoff'
+							? 'velocity'
+							: 'value'
+			for (const [oldKey, newKey] of [
+				['chValue', 'channel'],
+				['noteValue', 'note'],
+				['ccValue', 'controller'],
+				['varValue', valId],
+			]) {
+				const value = action.options[oldKey]
+				if (value !== undefined) action.options[newKey] = FixupNumericOrVariablesValueToExpressions(value)
+				delete action.options[oldKey]
+			}
+			delete action.options.useVariables
+			changes.updatedActions.push(action)
 		}
 
+		for (const feedback of props.feedbacks) {
+			if (feedback.options.createVar?.value === true) enableAutoCreateVars = true
+			if (feedback.options.useVariables?.value !== true) continue
+			const valId =
+				feedback.feedbackId === 'program'
+					? 'program'
+					: feedback.feedbackId === 'sysex'
+						? 'bytes'
+						: feedback.feedbackId === 'noteon' || feedback.feedbackId === 'noteoff'
+							? 'velocity'
+							: 'value'
+			for (const [oldKey, newKey] of [
+				['chValue', 'channel'],
+				['noteValue', 'note'],
+				['ccValue', 'controller'],
+				['varValue', valId],
+			]) {
+				const value = feedback.options[oldKey]
+				if (value !== undefined) feedback.options[newKey] = FixupNumericOrVariablesValueToExpressions(value)
+				delete feedback.options[oldKey]
+			}
+			delete feedback.options.useVariables
+			changes.updatedFeedbacks.push(feedback)
+		}
+
+		if (enableAutoCreateVars && !context.currentConfig.autoCreateVars) {
+			changes.updatedConfig = { ...context.currentConfig, autoCreateVars: true }
+		}
 		return changes
 	},
 ]

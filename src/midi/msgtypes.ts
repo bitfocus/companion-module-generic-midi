@@ -100,6 +100,7 @@ export class MidiMessage {
 	}
 
 	static constrain(num: number, max: number): number {
+		if (!Number.isFinite(num)) return 0
 		return num > max ? max : num < 0 ? 0 : num
 	}
 
