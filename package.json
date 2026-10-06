@@ -20,7 +20,7 @@
 		"url": "git+https://github.com/bitfocus/companion-module-generic-midi.git"
 	},
 	"engines": {
-		"node": ">=22.0.0"
+		"node": ">=22.13.0"
 	},
 	"dependencies": {
 		"@companion-module/base": "2.0.4",
@@ -28,8 +28,8 @@
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^3.1.0",
-		"@types/node": "^22.0.0",
-		"eslint": "^9.39.4",
+		"@types/node": "^26.0.0",
+		"eslint": "^10.2.0",
 		"husky": "^9.1.0",
 		"lint-staged": "^17.0.0",
 		"prettier": "^3.8.0",
