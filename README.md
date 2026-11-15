@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v2.2.0
+v2.2.1
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
