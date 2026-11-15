@@ -1,7 +1,7 @@
 # companion-module-generic-midi
 
 A MIDI Module to allow standard MIDI messages to be sent to and received from Companion v3
-v2.1.1
+v2.2.0
 
 Please visit http://discourse.checkcheckonetwo.com for help, discussions, suggestions, etc.
 
@@ -17,13 +17,18 @@ Supported MIDI Commands:
 - Channel Pressure
 - Pitch Wheel
 - Sysex
+- MIDI Show Control (MSC)
 - MIDI Time code (receive only)
 
 ---
 
 **REVISION HISTORY**
 
-### 2.1.1
+### 2.2.1
+
+- Add MIDI Show Control (MSC) sending, incoming message feedback, and variables
+
+#### 2.1.1
 
 - Make sure that noteon with velocity = 0 is seen as noteoff for noteStates
 

@@ -9,6 +9,7 @@ import { UpdatePresets } from './presets.js'
 import * as midi from './midi/midi.js'
 import { MidiMessage } from './midi/msgtypes.js'
 import type { midiVars } from './variables.js'
+import { formatMscLogMessage, parseMsc, type MscMessage } from './midi/msc.js'
 
 interface ModuleTypes extends InstanceTypes {
 	config: ModuleConfig
@@ -28,6 +29,7 @@ export default class ModuleInstance extends InstanceBase<ModuleTypes> {
 	dataStore!: Map<number, number>
 	isRecordingActions!: boolean
 	noteStates: boolean[][] = []
+	lastMsc: MscMessage | undefined
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -115,8 +117,27 @@ export default class ModuleInstance extends InstanceBase<ModuleTypes> {
 			})
 		})
 		this.midiInput.on('message', (deltaTime: number, msg: MidiMessage) => {
+			let parsedMsc: MscMessage | undefined
+			if (msg.id === 'sysex') {
+				parsedMsc = parseMsc(msg.bytes)
+				if (parsedMsc) {
+					this.lastMsc = parsedMsc
+					this.setVariableValues({
+						mscDeviceId: parsedMsc.deviceId,
+						mscCommandFormat: parsedMsc.commandFormat,
+						mscCommand: parsedMsc.command,
+						mscData: parsedMsc.data.map((b) => `0x${b.toString(16).padStart(2, '0')}`).join(' '),
+						mscMessage: formatMscSummary(parsedMsc),
+					})
+					this.checkFeedbacks('msc')
+				}
+			}
 			if (msg.id !== 'mtc') {
-				this.log('debug', `[${deltaTime.toFixed(2).padStart(6, '0')}] Received: ${msg} from "${this.midiInput.name}"`)
+				const logMessage = parsedMsc ? formatMscLogMessage(parsedMsc) : msg
+				this.log(
+					'debug',
+					`[${deltaTime.toFixed(2).padStart(6, '0')}] Received: ${logMessage} from "${this.midiInput.name}"`,
+				)
 				this.addToDataStore(msg)
 				if (this.isRecordingActions) this.addToActionRecording(deltaTime, msg)
 			}
@@ -189,6 +210,12 @@ export default class ModuleInstance extends InstanceBase<ModuleTypes> {
 			uniqueId, // uniqueId to stop duplicates when not using TimeStamp
 		)
 	}
+}
+
+function formatMscSummary(message: MscMessage): string {
+	return `Device ${message.deviceId}, format 0x${message.commandFormat.toString(16)}, command 0x${message.command.toString(16)}: ${message.data
+		.map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : `0x${b.toString(16).padStart(2, '0')}`))
+		.join(' ')}`
 }
 
 export { UpgradeScripts }

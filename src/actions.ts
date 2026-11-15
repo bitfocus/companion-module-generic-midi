@@ -3,6 +3,7 @@ import type { CompanionActionDefinition, CompanionActionDefinitions } from '@com
 import { HandleMidiIndicators } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
 import { midiMsgTypes, createOptions } from './operations.js'
+import { encodeMsc, formatMscLogMessage, MSC_COMMANDS, MSC_FORMATS, parseMsc, parseMscData } from './midi/msc.js'
 
 export function UpdateActions(self: ModuleInstance): void {
 	self.setVariableValues({ midiOut: false })
@@ -200,6 +201,79 @@ export function UpdateActions(self: ModuleInstance): void {
 		}
 
 		actions[action.id] = newAction
+	}
+
+	actions['msc'] = {
+		name: 'MIDI Show Control (MSC)',
+		options: [
+			{
+				id: 'deviceId',
+				type: 'number',
+				label: 'Destination Device ID (0–127; 127 = all-call)',
+				default: 127,
+				min: 0,
+				max: 127,
+			},
+			{
+				id: 'commandFormat',
+				type: 'dropdown',
+				label: 'Command Format',
+				default: 0x10,
+				choices: MSC_FORMATS.map((format) => ({
+					id: format.id,
+					label: `${format.label} (0x${format.id.toString(16).padStart(2, '0')})`,
+				})),
+			},
+			{
+				id: 'command',
+				type: 'dropdown',
+				label: 'Command',
+				default: 0x01,
+				choices: MSC_COMMANDS.map((command) => ({
+					id: command.id,
+					label: `${command.label} (0x${command.id.toString(16).padStart(2, '0')})`,
+				})),
+			},
+			{
+				id: 'data',
+				type: 'textinput',
+				label: 'Data (ASCII; use | between fields, or enter hex bytes)',
+				default: '',
+				useVariables: true,
+			},
+		],
+		callback: async (event): Promise<void> => {
+			if (!self.config.outPortIsVirtual && !self.midiOutput.isPortOpen()) {
+				self.log('error', `Output Port "${self.midiOutput.name}" not open!`)
+				return
+			}
+			const dataText = typeof event.options.data === 'string' ? event.options.data : ''
+			const data = parseMscData(dataText)
+			const msg =
+				data &&
+				encodeMsc(
+					Number(event.options.deviceId),
+					Number(event.options.commandFormat),
+					Number(event.options.command),
+					data,
+				)
+			if (!msg) {
+				self.log(
+					'warn',
+					'Invalid MSC message. Check the device, format, command, and data (maximum message length is 128 bytes).',
+				)
+				return
+			}
+			const midiMessage = MidiMessage.parseMessage(undefined, { id: 'sysex', bytes: msg })
+			if (!midiMessage) return
+			const parsedMsc = parseMsc(msg)
+			self.log(
+				'debug',
+				`Sending:  ${parsedMsc ? formatMscLogMessage(parsedMsc) : midiMessage} to "${self.midiOutput.name}"`,
+			)
+			self.midiOutput.send(midiMessage)
+			HandleMidiIndicators(self, 'midiOut')
+		},
 	}
 
 	self.setActionDefinitions(actions)

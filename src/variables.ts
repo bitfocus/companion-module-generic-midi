@@ -9,6 +9,11 @@ export type midiVars = {
 	smpte: string
 	smpteFR: number
 	noteStates: boolean[][]
+	mscDeviceId: number
+	mscCommandFormat: number
+	mscCommand: number
+	mscData: string
+	mscMessage: string
 }
 
 const variables: CompanionVariableDefinitions<midiVars> = {
@@ -18,6 +23,11 @@ const variables: CompanionVariableDefinitions<midiVars> = {
 	smpte: { name: 'SMPTE TC from MTC' },
 	smpteFR: { name: 'SMPTE Frame Rate from MTC' },
 	noteStates: { name: 'Current Note states' },
+	mscDeviceId: { name: 'Last MSC Device ID' },
+	mscCommandFormat: { name: 'Last MSC Command Format' },
+	mscCommand: { name: 'Last MSC Command' },
+	mscData: { name: 'Last MSC Data (hex)' },
+	mscMessage: { name: 'Last MSC Message' },
 }
 
 const midiTimers: Map<string, ReturnType<typeof setTimeout> | null> = new Map()

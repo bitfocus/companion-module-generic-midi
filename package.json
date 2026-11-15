@@ -1,6 +1,6 @@
 {
 	"name": "generic-midi",
-	"version": "2.1.2",
+	"version": "2.2.1",
 	"main": "dist/main.js",
 	"type": "module",
 	"scripts": {
@@ -20,15 +20,15 @@
 		"url": "git+https://github.com/bitfocus/companion-module-generic-midi.git"
 	},
 	"engines": {
-		"node": ">=22.13.0"
+		"node": ">=26.0.0"
 	},
 	"dependencies": {
-		"@companion-module/base": "2.0.4",
-		"@julusian/midi": "^3.6.1"
+		"@companion-module/base": "~2.1.0",
+		"@julusian/midi": "^3.8.1"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^3.1.0",
-		"@types/node": "^22.0.0",
+		"@companion-module/tools": "^3.2.0",
+		"@types/node": "^26.0.0",
 		"eslint": "^10.2.0",
 		"husky": "^9.1.0",
 		"lint-staged": "^17.0.0",

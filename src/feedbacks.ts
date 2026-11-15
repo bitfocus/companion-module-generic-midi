@@ -8,6 +8,7 @@ import type {
 import { FBCreatesVar } from './variables.js'
 import { MidiMessage } from './midi/msgtypes.js'
 import { midiMsgTypes, createOptions } from './operations.js'
+import { formatMscData, MSC_COMMANDS, MSC_FORMATS, parseMscData } from './midi/msc.js'
 
 export function UpdateFeedbacks(self: ModuleInstance): void {
 	const feedbacks: CompanionFeedbackDefinitions = {}
@@ -112,6 +113,113 @@ export function UpdateFeedbacks(self: ModuleInstance): void {
 		options: [],
 		callback: async (): Promise<boolean> => {
 			return !!self.getVariableValue('midiOut')
+		},
+	}
+
+	feedbacks['msc'] = {
+		name: 'MIDI Show Control (MSC) Message',
+		description:
+			'True when the most recently received SysEx message matches these MSC fields. MSC does not define acknowledgements.',
+		type: 'boolean',
+		defaultStyle: { bgcolor: combineRgb(0, 180, 0), color: combineRgb(0, 0, 0) },
+		options: [
+			{ id: 'deviceId', type: 'number', label: 'Device ID (-1 = any)', default: -1, min: -1, max: 127 },
+			{
+				id: 'commandFormat',
+				type: 'dropdown',
+				label: 'Command Format',
+				default: -1,
+				choices: [
+					{ id: -1, label: 'Any' },
+					...MSC_FORMATS.map((format) => ({
+						id: format.id,
+						label: `${format.label} (0x${format.id.toString(16).padStart(2, '0')})`,
+					})),
+				],
+			},
+			{
+				id: 'command',
+				type: 'dropdown',
+				label: 'Command',
+				default: -1,
+				choices: [
+					{ id: -1, label: 'Any' },
+					...MSC_COMMANDS.map((command) => ({
+						id: command.id,
+						label: `${command.label} (0x${command.id.toString(16).padStart(2, '0')})`,
+					})),
+				],
+			},
+			{
+				id: 'data',
+				type: 'textinput',
+				label: 'Exact Data (optional; ASCII or hex bytes)',
+				default: '',
+				useVariables: true,
+			},
+		],
+		callback: async (event): Promise<boolean> => {
+			const incoming = self.lastMsc
+			if (!incoming) return false
+			const opts = event.options
+			if (Number(opts.deviceId) !== -1 && Number(opts.deviceId) !== incoming.deviceId) return false
+			if (Number(opts.commandFormat) !== -1 && Number(opts.commandFormat) !== incoming.commandFormat) return false
+			if (Number(opts.command) !== -1 && Number(opts.command) !== incoming.command) return false
+			if (opts.data != null && typeof opts.data !== 'string') return false
+			const dataText = (opts.data ?? '').trim()
+			if (dataText) {
+				const expected = parseMscData(dataText)
+				if (!expected || expected.length !== incoming.data.length || expected.some((b, i) => b !== incoming.data[i]))
+					return false
+			}
+			return true
+		},
+	}
+
+	feedbacks['msc_value'] = {
+		name: 'MIDI Show Control (MSC) Data Value',
+		description: 'Returns the data from the most recently received MSC message when it matches the filters.',
+		type: 'value',
+		options: [
+			{ id: 'deviceId', type: 'number', label: 'Device ID (-1 = any)', default: -1, min: -1, max: 127 },
+			{
+				id: 'commandFormat',
+				type: 'dropdown',
+				label: 'Command Format',
+				default: -1,
+				choices: [
+					{ id: -1, label: 'Any' },
+					...MSC_FORMATS.map((format) => ({
+						id: format.id,
+						label: `${format.label} (0x${format.id.toString(16).padStart(2, '0')})`,
+					})),
+				],
+			},
+			{
+				id: 'command',
+				type: 'dropdown',
+				label: 'Command',
+				default: -1,
+				choices: [
+					{ id: -1, label: 'Any' },
+					...MSC_COMMANDS.map((command) => ({
+						id: command.id,
+						label: `${command.label} (0x${command.id.toString(16).padStart(2, '0')})`,
+					})),
+				],
+			},
+		],
+		callback: async (event): Promise<string> => {
+			const incoming = self.lastMsc
+			if (!incoming) return undefined as unknown as string
+			const opts = event.options
+			if (Number(opts.deviceId) !== -1 && Number(opts.deviceId) !== incoming.deviceId)
+				return undefined as unknown as string
+			if (Number(opts.commandFormat) !== -1 && Number(opts.commandFormat) !== incoming.commandFormat)
+				return undefined as unknown as string
+			if (Number(opts.command) !== -1 && Number(opts.command) !== incoming.command)
+				return undefined as unknown as string
+			return formatMscData(incoming.data)
 		},
 	}
 
