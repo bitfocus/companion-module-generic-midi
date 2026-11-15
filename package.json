@@ -15,6 +15,9 @@
 		"lint": "yarn lint:raw ."
 	},
 	"license": "MIT",
+	"resolutions": {
+		"minimatch": "^11.0.1"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-generic-midi.git"
